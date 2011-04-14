@@ -24,7 +24,7 @@ Type definitions are placed in a `.atd` file:
       day : int;
     }
 
-Our OCaml program is `hello.ml`:
+Our handwritten OCaml program is `hello.ml`:
 
     $ cat hello.ml
     open Hello_t
