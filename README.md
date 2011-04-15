@@ -10,10 +10,37 @@ Currently it provides support for:
   and faster to process.
 * Convenience functions for creating and validating OCaml data.
 
+# Prerequisites
+
+This tutorial assumes that you are using atdgen version 1.2.0 or above.
+The following command tells you which version you are using:
+
+    $ atdgen -version
+    1.2.0+dev
+
+At the time of writing, atdgen 1.2.0 has not
+been officially released but the development version is available from Github.
+You can fetch it using the following command:
+
+    $ git clone git://github.com/MyLifeLabs/atdgen.git
+
+A quick way of installing all the dependencies is via Godi.
+Run `godi_console` and install atdgen 1.1.1. You can then uninstall it
+but leave all its dependencies installed.
+
+Now read the instructions in atdgen/INSTALL or just do:
+
+    $ cd atdgen
+    $ make
+    $ make install
+
 # Getting started
 
-We assume that you have installed a recent version of atdgen. This tutorial
-assumes version 1.2.0 or above.
+From now on we assume that atdgen 1.2.0 or above is installed properly.
+1.2.0+dev is fine.
+
+    $ atdgen -version
+    1.2.0+dev
 
 Type definitions are placed in a `.atd` file:
 
@@ -57,7 +84,6 @@ And finally we run our `hello` program:
 
     $ ./hello
     {"year":1970,"month":1,"day":1}
-
 
 # Examples
 
