@@ -28,7 +28,7 @@ A quick way of installing all the dependencies is via Godi.
 Run `godi_console` and install atdgen 1.1.1. You can then uninstall it
 but leave all its dependencies installed.
 
-Now read the instructions in atdgen/INSTALL or just do:
+Now read the instructions in `atdgen/INSTALL` or just do:
 
     $ cd atdgen
     $ make
@@ -85,8 +85,85 @@ And finally we run our `hello` program:
     $ ./hello
     {"year":1970,"month":1,"day":1}
 
-# Examples
+# Data inspection and pretty-printing JSON
+
+Input JSON data:
+
+    $ cat single.json 
+    [1234,"abcde",{"start_date":{"year":1970,"month":1,"day":1}, 
+    "end_date":{"year":1980,"month":1,"day":1}}]
+
+Pretty-printed JSON can be produced with the `ydump` command:
+
+    $ ydump single.json 
+    [
+      1234,
+      "abcde",
+      {
+        "start_date": { "year": 1970, "month": 1, "day": 1 },
+        "end_date": { "year": 1980, "month": 1, "day": 1 }
+      }
+    ]
+
+Multiple JSON objects separated by whitespace, typically one JSON object
+per line, can also be pretty-printed with `ydump`. Input:
+
+    $ cat stream.json 
+    [1234,"abcde",{"start_date":{"year":1970,"month":1,"day":1}, 
+    "end_date":{"year":1980,"month":1,"day":1}}]
+    [1,"a",{}]
+
+In this case the `-s` option is required:
+
+    $ ydump -s stream.json 
+    [
+      1234,
+      "abcde",
+      {
+        "start_date": { "year": 1970, "month": 1, "day": 1 },
+        "end_date": { "year": 1980, "month": 1, "day": 1 }
+      }
+    ]
+    [ 1, "a", {} ]
+
+From an OCaml program, pretty-printing can be done with `Yojson.Safe.prettify`
+which has the following signature:
+
+    val prettify : string -> string
+
+We wrote a tiny program that simply calls the `prettify` function on 
+some predefined JSON data:
+
+    $ cat prettify.ml
+    let json =
+    "[1234,\"abcde\",{\"start_date\":{\"year\":1970,\"month\":1,\"day\":1}, 
+    \"end_date\":{\"year\":1980,\"month\":1,\"day\":1}}]"
+
+    let () = print_endline (Yojson.Safe.prettify json)
+
+We now compile and run prettify.ml:
+
+    $ ocamlfind ocamlopt -o prettify prettify.ml -package atdgen -linkpkg
+    $ ./prettify
+    [
+      1234,
+      "abcde",
+      {
+        "start_date": { "year": 1970, "month": 1, "day": 1 },
+        "end_date": { "year": 1980, "month": 1, "day": 1 }
+      }
+    ]
+
+# Inspecting biniou data
 
 
 
-# Advanced features
+# Optional fields and default values
+
+# Smooth protocol upgrades
+
+# Data validation
+
+# Referring to type definitions from an other ATD file
+
+# Integration with ocamldoc

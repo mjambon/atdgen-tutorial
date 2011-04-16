@@ -4,7 +4,8 @@ set -x
 cat single.json
 ydump single.json
 cat stream.json
-ydump -c stream.json
+ydump -s stream.json
 
-ocamlfind ocamlopt -o prettify prettify.ml -package yojson -linkpkg
+cat prettify.ml
+ocamlfind ocamlopt -o prettify prettify.ml -package atdgen -linkpkg
 ./prettify

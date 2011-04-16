@@ -9,4 +9,4 @@ README.html: README.md
 clean:
 	rm -f README.html *~
 	rm -f */*_[tbjv].* */*_[tbjv].* */*~ */*.cm[iox] */*.o
-	rm -f hello/hello
+	rm -f hello/hello pretty-print/prettify
