@@ -85,7 +85,7 @@ And finally we run our `hello` program:
     $ ./hello
     {"year":1970,"month":1,"day":1}
 
-# Data inspection and pretty-printing JSON
+# Inspecting and pretty-printing JSON
 
 Input JSON data:
 
@@ -156,6 +156,130 @@ We now compile and run prettify.ml:
 
 # Inspecting biniou data
 
+Biniou is a binary format that can be displayed as text using a generic
+command called bdump. The only practical difficulty is to recover
+the original field names and variant names which are stored as 31-bit hashes.
+Unhashing them is done by consulting a dictionary (list of words)
+maintained by the user.
+
+Let's first produce a sample data file `tree.dat` containing the
+biniou representation of a binary tree. In the same program
+we will also demonstrate how to render biniou data into text from an
+OCaml program.
+
+Here is the ATD file defining our tree type:
+
+    $ cat tree.atd
+    type tree =
+        [ Empty
+        | Node of (tree * int * int tree) ]
+
+This is our OCaml program:
+
+    $ cat tree.ml
+    open Printf
+    
+    (* sample value *)
+    let tree : Tree_t.tree =
+      `Node (
+        `Node (`Empty, 1, `Empty),
+        2,
+        `Node (
+          `Node (`Empty, 3, `Empty),
+          4,
+          `Node (`Empty, 5, `Empty)
+        )
+      )
+    
+    let () =
+      (* write sample value to file *)
+      let fname = "tree.dat" in
+      Ag_util.Biniou.to_file Tree_b.write_tree fname tree;
+    
+      (* write sample value to string *)
+      let s = Tree_b.string_of_tree tree in
+      printf "raw value (saved as %s):\n%S\n" fname s;
+      printf "length: %i\n" (String.length s);
+    
+      printf "pretty-printed value (without dictionary):\n";
+      print_endline (Bi_io.view s);
+    
+      printf "pretty-printed value (with dictionary):\n";
+      let unhash = Bi_io.make_unhash ["Empty"; "Node"; "foo"; "bar" ] in
+      print_endline (Bi_io.view ~unhash s)
+
+Compilation:
+
+    $ atdgen -t tree.atd
+    $ atdgen -b tree.atd
+    $ ocamlfind ocamlopt -o tree \
+        tree_t.mli tree_t.ml tree_b.mli tree_b.ml tree.ml \
+        -package atdgen -linkpkg
+
+Running the program:
+
+    $ ./tree
+    raw value (saved as tree.dat):
+    "\023\179\2276\"\020\003\023\179\2276\"\020\003\023\003\007\170m\017\002\023\003\007\170m\017\004\023\179\2276\"\020\003\023\179\2276\"\020\003\023\003\007\170m\017\006\023\003\007\170m\017\b\023\179\2276\"\020\003\023\003\007\170m\017\n\023\003\007\170m"
+    length: 75
+    pretty-printed value (without dictionary):
+    <#33e33622:
+       (<#33e33622: (<#0307aa6d>, 1, <#0307aa6d>)>,
+        2,
+        <#33e33622:
+           (<#33e33622: (<#0307aa6d>, 3, <#0307aa6d>)>,
+            4,
+            <#33e33622: (<#0307aa6d>, 5, <#0307aa6d>)>)>)>
+    pretty-printed value (with dictionary):
+    <"Node":
+       (<"Node": (<"Empty">, 1, <"Empty">)>,
+        2,
+        <"Node":
+           (<"Node": (<"Empty">, 3, <"Empty">)>,
+            4,
+            <"Node": (<"Empty">, 5, <"Empty">)>)>)>
+
+Now let's see how to pretty-print any biniou data from the command line.
+Our sample data are now in file `tree.dat`:
+
+    $ ls -l tree.dat
+    -rw-r--r-- 1 martin martin 75 Apr 17 01:46 tree.dat
+
+We use the command `bdump` to render our sample biniou data as text:
+
+    $ bdump tree.dat
+    <#33e33622:
+       (<#33e33622: (<#0307aa6d>, 1, <#0307aa6d>)>,
+        2,
+        <#33e33622:
+           (<#33e33622: (<#0307aa6d>, 3, <#0307aa6d>)>,
+            4,
+            <#33e33622: (<#0307aa6d>, 5, <#0307aa6d>)>)>)>
+
+We got hashes for the variant names `Empty` and `Node`.
+Let's add them to the dictionary:
+
+    $ bdump -w Empty,Node tree.dat
+    <"Node":
+       (<"Node": (<"Empty">, 1, <"Empty">)>,
+        2,
+        <"Node":
+           (<"Node": (<"Empty">, 3, <"Empty">)>,
+            4,
+            <"Node": (<"Empty">, 5, <"Empty">)>)>)>
+
+`bdump` remembers the dictionary so we don't have to pass the 
+`-w` option anymore (for this user on this machine).
+The following now works:
+
+    $ bdump tree.dat
+    <"Node":
+       (<"Node": (<"Empty">, 1, <"Empty">)>,
+        2,
+        <"Node":
+           (<"Node": (<"Empty">, 3, <"Empty">)>,
+            4,
+            <"Node": (<"Empty">, 5, <"Empty">)>)>)>
 
 
 # Optional fields and default values
