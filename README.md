@@ -157,7 +157,7 @@ We now compile and run prettify.ml:
 # Inspecting biniou data
 
 Biniou is a binary format that can be displayed as text using a generic
-command called bdump. The only practical difficulty is to recover
+command called `bdump`. The only practical difficulty is to recover
 the original field names and variant names which are stored as 31-bit hashes.
 Unhashing them is done by consulting a dictionary (list of words)
 maintained by the user.
@@ -283,6 +283,72 @@ The following now works:
 
 
 # Optional fields and default values
+
+Although OCaml records do not support optional fields, both the JSON
+and biniou formats make it possible to omit certain fields on a
+per-record basis.
+
+For example the JSON record `{ "x": 0, "y": 0 }` can be more
+compactly written as `{}` if the reader knows the default values for
+the missing fields `x` and `y`. Here is the corresponding type
+definition:
+
+    type vector_v1 = { ~x: int; ~y: int }
+
+`~x` means that field `x` supports a default value. Since we do not
+specify the default value ourselves, the built-in default is used,
+which is 0.
+
+If we want the default to be something else than 0, we just have to
+specify it as follows:
+
+    type vector_v2 = {
+      ~x <ocaml default="1">: int; (* default x is 1 *)
+      ~y: int;                     (* default y is 0 *)
+    }
+
+It is also possible to specify optional fields without a default
+value. For example, let's add an optional `z` field:
+
+    type vector_v3 = {
+      ~x: int;
+      ~y: int;
+      ?z: int option;
+    }
+
+The following two examples are valid JSON representations of data of
+type `vector_v3`:
+
+    { "x": 2, "y": 2, "z": 3 }  // OCaml: { x = 2; y = 2; z = Some 3 }
+
+    { "x": 2, "y": 2 }          // OCaml: { x = 2; y = 2; z = None }
+
+For a variety of good reasons JSON's `null` value may not be used to
+indicate that a field is undefined.
+Therefore the following JSON data cannot be read as a record of type
+`vector_v3`:
+
+    { "x": 2, "y": 2, "z": null }  // invalid value for field z
+
+
+Note also the difference between `?z: int option` and `~z: int
+option`:
+
+    type vector_v4 = {
+      ~x: int;
+      ~y: int;
+      ~z: int option;  (* no unwrapping of the JSON field value! *)
+    }
+
+Here are valid values of type `vector_v4`, showing that it is usually
+not what is intended:
+
+    { "x": 2, "y": 2, "z": [ "Some", 3 ] }
+
+    { "x": 2, "y": 2, "z": "None" }
+
+    { "x": 2, "y": 2 }
+
 
 # Smooth protocol upgrades
 
