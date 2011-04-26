@@ -377,8 +377,8 @@ Same `.atd` source file, edited:
       ~z: int; (* new field *)
     }
 
-* upgrade producers and consumers in any order
-* converting old data is not required nor useful
+* Upgrade producers and consumers in any order
+* Converting old data is not required nor useful
 
 ## Adding a required record field
 
@@ -395,13 +395,13 @@ Same `.atd` source file, edited:
       z: int; (* new field *)
     }
 
-* upgrade all producers before the consumers
-* converting old data requires special-purpose hand-written code
+* Upgrade all producers before the consumers
+* Converting old data requires special-purpose hand-written code
 
 ## Removing a required record field
 
-* upgrade all consumers before the producers
-* converting old data is not required but may save some storage space
+* Upgrade all consumers before the producers
+* Converting old data is not required but may save some storage space
   (just read and re-write each record using the new type)
 
 ## Adding a variant case
@@ -412,13 +412,13 @@ Same `.atd` source file, edited:
 
     type t = [ A | B | C ]
 
-* upgrade all consumers before the producers
-* converting old data is not required and would have no effect
+* Upgrade all consumers before the producers
+* Converting old data is not required and would have no effect
 
 ## Removing a variant case
 
-* upgrade all producers before the consumers
-* converting old data requires special-purpose hand-written code
+* Upgrade all producers before the consumers
+* Converting old data requires special-purpose hand-written code
 
 ## Avoiding future problems
 
