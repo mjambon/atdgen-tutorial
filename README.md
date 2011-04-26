@@ -364,15 +364,17 @@ behavior is to happily ignore it.
 
 ## Adding or removing an optional record field
 
-    type before = {
+    type t = {
       x: int;
       y: int;
     }
 
-    type after = {
+Same `.atd` source file, edited:
+
+    type t = {
       x: int;
       y: int;
-      ~z: int;
+      ~z: int; (* new field *)
     }
 
 * upgrade producers and consumers in any order
@@ -380,15 +382,17 @@ behavior is to happily ignore it.
 
 ## Adding a required record field
 
-    type before = {
+    type t = {
       x: int;
       y: int;
     }
 
-    type after = {
+Same `.atd` source file, edited:
+
+    type t = {
       x: int;
       y: int;
-      z: int;
+      z: int; (* new field *)
     }
 
 * upgrade all producers before the consumers
@@ -402,9 +406,11 @@ behavior is to happily ignore it.
 
 ## Adding a variant case
 
-    type before = [ A | B ]
+    type t = [ A | B ]
 
-    type after = [ A | B | C ]
+Same `.atd` source file, edited:
+
+    type t = [ A | B | C ]
 
 * upgrade all consumers before the producers
 * converting old data is not required and would have no effect
