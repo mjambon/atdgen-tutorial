@@ -352,6 +352,77 @@ not what is intended:
 
 # Smooth protocol upgrades
 
+Problem: you have a production system that uses a specific
+JSON or biniou format. It may be data files or a client-server
+pair. You now want to add a field to a record type or to add a case to
+a variant type.
+
+Both JSON and biniou allow extra record fields. If the
+consumer does not know how to deal with the extra field, the default
+behavior is to happily ignore it.
+
+
+## Adding or removing an optional record field
+
+    type before = {
+      x: int;
+      y: int;
+    }
+
+    type after = {
+      x: int;
+      y: int;
+      ~z: int;
+    }
+
+* upgrade producers and consumers in any order
+* converting old data is not required nor useful
+
+## Adding a required record field
+
+    type before = {
+      x: int;
+      y: int;
+    }
+
+    type after = {
+      x: int;
+      y: int;
+      z: int;
+    }
+
+* upgrade all producers before the consumers
+* converting old data requires special-purpose hand-written code
+
+## Removing a required record field
+
+* upgrade all consumers before the producers
+* converting old data is not required but may save some storage space
+  (just read and re-write each record using the new type)
+
+## Adding a variant case
+
+    type before = [ A | B ]
+
+    type after = [ A | B | C ]
+
+* upgrade all consumers before the producers
+* converting old data is not required and would have no effect
+
+## Removing a variant case
+
+* upgrade all producers before the consumers
+* converting old data requires special-purpose hand-written code
+
+## Avoiding future problems
+
+* In doubt, use records rather than tuples because it makes it
+  possible to add or remove any field or to reorder them.
+* Do not hesitate to create variant types with only one case or
+  records with only one field if you think they might be extended
+  later.
+
+
 # Data validation
 
 # Referring to type definitions from an other ATD file
