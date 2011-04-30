@@ -431,6 +431,176 @@ Same `.atd` source file, edited:
 
 # Data validation
 
+Atdgen can be used to produce data validators for all types defined 
+in an ATD file,
+based on user-given validators specified only for certain types.
+A simple example is:
+
+    type t = string <ocaml validator="fun s -> String.length s >= 8"> option
+
+`atdgen -v` will produce something equivalent to the following implementation:
+
+    let validate_t x =
+      match x with
+          None -> true
+        | Some x -> (fun s -> String.length s >= 8) x
+
+Let's now consider a more realistic example with complex validators defined
+in a separate .ml file. We created the following 3 source files:
+
+* `resume.atd`: contains the type definitions with annotations
+* `resume_util.ml`: contains our handwritten validators
+* `resume.ml`: is our main program that creates data and calls the validators
+
+In terms of OCaml modules we have:
+
+* `Resume_t`: produced by `atdgen -t resume.atd`, 
+              provides OCaml type definitions
+* `Resume_util`: depends on `Resume_t`, provides validators mentioned
+                 in `resume.atd`
+* `Resume_v`: produced by `atdgen -v resume.atd`, depends on `Resume_util`,
+              provides a validator for each type
+* `Resume`: depends on `Resume_v`, uses the validators
+
+Type definitions are placed in `resume.atd`:
+
+    type text = string <ocaml validator="Resume_util.validate_some_text">
+    
+    type date = {
+      year : int;
+      month : int;
+      day : int;
+    } <ocaml validator="Resume_util.validate_date">
+    
+    type job = {
+      company : text;
+      title : text;
+      start_date : date;
+      ?end_date : date option;
+    } <ocaml validator="Resume_util.validate_job">
+    
+    type work_experience = job list
+
+`resume_util.ml` contains our handwritten validators:
+
+    open Resume_t
+    
+    let ascii_printable c =
+      let n = Char.code c in
+      n >= 32 && n <= 127
+    
+    (*
+      Check that string is not empty and contains only ASCII printable
+      characters (for the sake of the example; we use UTF-8 these days)
+    *)
+    let validate_some_text s =
+      s <> "" &&
+        try
+          String.iter (fun c -> if not (ascii_printable c) then raise Exit) s;
+          true
+        with Exit ->
+          false
+    
+    (*
+      Check that the combination of year, month and day exists in the 
+      Gregorian calendar.
+    *)
+    let validate_date x =
+      let y = x.year in
+      let m = x.month in
+      let d = x.day in
+      m >= 1 && m <= 12 && d >= 1 &&
+      (let dmax =
+         match m with
+             2 ->
+               if y mod 4 = 0 && not (y mod 100 = 0) || y mod 400 = 0 then 29
+               else 28
+           | 1 | 3 | 5 | 7 | 8 | 10 | 12 -> 31
+           | _ -> 30
+       in
+       d <= dmax)
+    
+    (* Compare dates chronologically *)
+    let compare_date a b =
+      let c = compare a.year b.year in
+      if c <> 0 then c
+      else
+        let c = compare a.month b.month in
+        if c <> 0 then c
+        else compare a.day b.day
+    
+    (* Check that the end_date, when defined, is not earlier than the start_date *)
+    let validate_job x =
+      match x.end_date with
+          None -> true
+        | Some end_date ->
+            compare_date x.start_date end_date <= 0
+
+`resume.ml` uses the `validate_` functions provided by the `Resume_v` module:
+
+    let check_experience x =
+      let is_valid = Resume_v.validate_work_experience x in
+      Printf.printf "%s:\n%s\n"
+        (if is_valid then "VALID" else "INVALID")
+        (Yojson.Safe.prettify (Resume_j.string_of_work_experience x))
+    
+    let () =
+      (* one valid date *)
+      let valid = { Resume_t.year = 2000; month = 2; day = 29 } in
+      (* one invalid date *)
+      let invalid = { Resume_t.year = 1900; month = 0; day = 0 } in
+      (* two more valid dates, created with Resume_v.create_date *)
+      let date1 = { Resume_t.year = 2005; month = 8; day = 1 } in
+      let date2 = { Resume_t.year = 2006; month = 3; day = 22 } in
+    
+      let job = {
+        Resume_t.company = "Acme Corp.";
+        title = "Tester";
+        start_date = date1;
+        end_date = Some date2;
+      }
+      in
+      let valid_job = { job with Resume_t.start_date = valid } in
+      let invalid_job = { job with Resume_t.end_date = Some invalid } in
+      let valid_experience = [ job; valid_job ] in
+      let invalid_experience = [ job; invalid_job ] in
+      check_experience valid_experience;
+      check_experience invalid_experience
+
+Output:
+
+    VALID:
+    [
+      {
+        "company": "Acme Corp.",
+        "title": "Tester",
+        "start_date": { "year": 2005, "month": 8, "day": 1 },
+        "end_date": { "year": 2006, "month": 3, "day": 22 }
+      },
+      {
+        "company": "Acme Corp.",
+        "title": "Tester",
+        "start_date": { "year": 2000, "month": 2, "day": 29 },
+        "end_date": { "year": 2006, "month": 3, "day": 22 }
+      }
+    ]
+    INVALID:
+    [
+      {
+        "company": "Acme Corp.",
+        "title": "Tester",
+        "start_date": { "year": 2005, "month": 8, "day": 1 },
+        "end_date": { "year": 2006, "month": 3, "day": 22 }
+      },
+      {
+        "company": "Acme Corp.",
+        "title": "Tester",
+        "start_date": { "year": 2005, "month": 8, "day": 1 },
+        "end_date": { "year": 1900, "month": 0, "day": 0 }
+      }
+    ]
+
+
 # Referring to type definitions from an other ATD file
 
 # Integration with ocamldoc
