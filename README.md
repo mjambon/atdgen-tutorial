@@ -42,14 +42,15 @@ From now on we assume that atdgen 1.2.0 or above is installed properly.
     $ atdgen -version
     1.2.0+dev
 
-Type definitions are placed in a `.atd` file:
+Type definitions are placed in a `.atd` file (`hello.atd`):
 
-    $ cat hello.atd
-    type date = {
-      year : int;
-      month : int;
-      day : int;
-    }
+```ocaml
+type date = {
+  year : int;
+  month : int;
+  day : int;
+}
+```
 
 Our handwritten OCaml program is `hello.ml`:
 
@@ -130,17 +131,20 @@ In this case the `-s` option is required:
 From an OCaml program, pretty-printing can be done with `Yojson.Safe.prettify`
 which has the following signature:
 
-    val prettify : string -> string
+```ocaml
+val prettify : string -> string
+```
 
 We wrote a tiny program that simply calls the `prettify` function on 
-some predefined JSON data:
+some predefined JSON data (file `prettify.ml`):
 
-    $ cat prettify.ml
-    let json =
-    "[1234,\"abcde\",{\"start_date\":{\"year\":1970,\"month\":1,\"day\":1}, 
-    \"end_date\":{\"year\":1980,\"month\":1,\"day\":1}}]"
+```ocaml
+let json =
+"[1234,\"abcde\",{\"start_date\":{\"year\":1970,\"month\":1,\"day\":1}, 
+\"end_date\":{\"year\":1980,\"month\":1,\"day\":1}}]"
 
-    let () = print_endline (Yojson.Safe.prettify json)
+let () = print_endline (Yojson.Safe.prettify json)
+```
 
 We now compile and run prettify.ml:
 
@@ -168,46 +172,48 @@ biniou representation of a binary tree. In the same program
 we will also demonstrate how to render biniou data into text from an
 OCaml program.
 
-Here is the ATD file defining our tree type:
+Here is the ATD file defining our tree type (file `tree.atd`):
 
-    $ cat tree.atd
-    type tree =
-        [ Empty
-        | Node of (tree * int * int tree) ]
+```ocaml
+type tree =
+    [ Empty
+    | Node of (tree * int * int tree) ]
+```
 
-This is our OCaml program:
+This is our OCaml program (file `tree.ml`):
 
-    $ cat tree.ml
-    open Printf
-    
-    (* sample value *)
-    let tree : Tree_t.tree =
-      `Node (
-        `Node (`Empty, 1, `Empty),
-        2,
-        `Node (
-          `Node (`Empty, 3, `Empty),
-          4,
-          `Node (`Empty, 5, `Empty)
-        )
-      )
-    
-    let () =
-      (* write sample value to file *)
-      let fname = "tree.dat" in
-      Ag_util.Biniou.to_file Tree_b.write_tree fname tree;
-    
-      (* write sample value to string *)
-      let s = Tree_b.string_of_tree tree in
-      printf "raw value (saved as %s):\n%S\n" fname s;
-      printf "length: %i\n" (String.length s);
-    
-      printf "pretty-printed value (without dictionary):\n";
-      print_endline (Bi_io.view s);
-    
-      printf "pretty-printed value (with dictionary):\n";
-      let unhash = Bi_io.make_unhash ["Empty"; "Node"; "foo"; "bar" ] in
-      print_endline (Bi_io.view ~unhash s)
+```ocaml
+open Printf
+
+(* sample value *)
+let tree : Tree_t.tree =
+  `Node (
+    `Node (`Empty, 1, `Empty),
+    2,
+    `Node (
+      `Node (`Empty, 3, `Empty),
+      4,
+      `Node (`Empty, 5, `Empty)
+    )
+  )
+
+let () =
+  (* write sample value to file *)
+  let fname = "tree.dat" in
+  Ag_util.Biniou.to_file Tree_b.write_tree fname tree;
+
+  (* write sample value to string *)
+  let s = Tree_b.string_of_tree tree in
+  printf "raw value (saved as %s):\n%S\n" fname s;
+  printf "length: %i\n" (String.length s);
+
+  printf "pretty-printed value (without dictionary):\n";
+  print_endline (Bi_io.view s);
+
+  printf "pretty-printed value (with dictionary):\n";
+  let unhash = Bi_io.make_unhash ["Empty"; "Node"; "foo"; "bar" ] in
+  print_endline (Bi_io.view ~unhash s)
+```
 
 Compilation:
 
@@ -294,7 +300,9 @@ compactly written as `{}` if the reader knows the default values for
 the missing fields `x` and `y`. Here is the corresponding type
 definition:
 
-    type vector_v1 = { ~x: int; ~y: int }
+```ocaml
+type vector_v1 = { ~x: int; ~y: int }
+```
 
 `~x` means that field `x` supports a default value. Since we do not
 specify the default value ourselves, the built-in default is used,
@@ -303,19 +311,23 @@ which is 0.
 If we want the default to be something else than 0, we just have to
 specify it as follows:
 
-    type vector_v2 = {
-      ~x <ocaml default="1">: int; (* default x is 1 *)
-      ~y: int;                     (* default y is 0 *)
-    }
+```ocaml
+type vector_v2 = {
+  ~x <ocaml default="1">: int; (* default x is 1 *)
+  ~y: int;                     (* default y is 0 *)
+}
+```
 
 It is also possible to specify optional fields without a default
 value. For example, let's add an optional `z` field:
 
-    type vector_v3 = {
-      ~x: int;
-      ~y: int;
-      ?z: int option;
-    }
+```ocaml
+type vector_v3 = {
+  ~x: int;
+  ~y: int;
+  ?z: int option;
+}
+```
 
 The following two examples are valid JSON representations of data of
 type `vector_v3`:
@@ -335,11 +347,13 @@ Therefore the following JSON data cannot be read as a record of type
 Note also the difference between `?z: int option` and `~z: int
 option`:
 
-    type vector_v4 = {
-      ~x: int;
-      ~y: int;
-      ~z: int option;  (* no unwrapping of the JSON field value! *)
-    }
+```ocaml
+type vector_v4 = {
+  ~x: int;
+  ~y: int;
+  ~z: int option;  (* no unwrapping of the JSON field value! *)
+}
+```
 
 Here are valid values of type `vector_v4`, showing that it is usually
 not what is intended:
@@ -365,36 +379,44 @@ behavior is to happily ignore it.
 
 ## Adding or removing an optional record field
 
-    type t = {
-      x: int;
-      y: int;
-    }
+```ocaml
+type t = {
+  x: int;
+  y: int;
+}
+```
 
 Same `.atd` source file, edited:
 
-    type t = {
-      x: int;
-      y: int;
-      ~z: int; (* new field *)
-    }
+```ocaml
+type t = {
+  x: int;
+  y: int;
+  ~z: int; (* new field *)
+}
+```
 
 * Upgrade producers and consumers in any order
 * Converting old data is not required nor useful
 
 ## Adding a required record field
 
-    type t = {
-      x: int;
-      y: int;
-    }
+```ocaml
+type t = {
+  x: int;
+  y: int;
+}
+```
 
 Same `.atd` source file, edited:
 
-    type t = {
-      x: int;
-      y: int;
-      z: int; (* new field *)
-    }
+```ocaml
+type t = {
+  x: int;
+  y: int;
+  z: int; (* new field *)
+}
+```
 
 * Upgrade all producers before the consumers
 * Converting old data requires special-purpose hand-written code
@@ -407,11 +429,15 @@ Same `.atd` source file, edited:
 
 ## Adding a variant case
 
-    type t = [ A | B ]
+```ocaml
+type t = [ A | B ]
+```
 
 Same `.atd` source file, edited:
 
-    type t = [ A | B | C ]
+```ocaml
+type t = [ A | B | C ]
+```
 
 * Upgrade all consumers before the producers
 * Converting old data is not required and would have no effect
@@ -437,14 +463,18 @@ in an ATD file,
 based on user-given validators specified only for certain types.
 A simple example is:
 
-    type t = string <ocaml validator="fun s -> String.length s >= 8"> option
+```ocaml
+type t = string <ocaml validator="fun s -> String.length s >= 8"> option
+```
 
 `atdgen -v` will produce something equivalent to the following implementation:
 
-    let validate_t x =
-      match x with
-          None -> true
-        | Some x -> (fun s -> String.length s >= 8) x
+```ocaml
+let validate_t x =
+  match x with
+      None -> true
+    | Some x -> (fun s -> String.length s >= 8) x
+```
 
 Let's now consider a more realistic example with complex validators defined
 in a separate .ml file. We created the following 3 source files:
@@ -465,109 +495,115 @@ In terms of OCaml modules we have:
 
 Type definitions are placed in `resume.atd`:
 
-    type text = string <ocaml validator="Resume_util.validate_some_text">
-    
-    type date = {
-      year : int;
-      month : int;
-      day : int;
-    } <ocaml validator="Resume_util.validate_date">
-    
-    type job = {
-      company : text;
-      title : text;
-      start_date : date;
-      ?end_date : date option;
-    } <ocaml validator="Resume_util.validate_job">
-    
-    type work_experience = job list
+```ocaml
+type text = string <ocaml validator="Resume_util.validate_some_text">
+
+type date = {
+  year : int;
+  month : int;
+  day : int;
+} <ocaml validator="Resume_util.validate_date">
+
+type job = {
+  company : text;
+  title : text;
+  start_date : date;
+  ?end_date : date option;
+} <ocaml validator="Resume_util.validate_job">
+
+type work_experience = job list
+```
 
 `resume_util.ml` contains our handwritten validators:
 
-    open Resume_t
-    
-    let ascii_printable c =
-      let n = Char.code c in
-      n >= 32 && n <= 127
-    
-    (*
-      Check that string is not empty and contains only ASCII printable
-      characters (for the sake of the example; we use UTF-8 these days)
-    *)
-    let validate_some_text s =
-      s <> "" &&
-        try
-          String.iter (fun c -> if not (ascii_printable c) then raise Exit) s;
-          true
-        with Exit ->
-          false
-    
-    (*
-      Check that the combination of year, month and day exists in the 
-      Gregorian calendar.
-    *)
-    let validate_date x =
-      let y = x.year in
-      let m = x.month in
-      let d = x.day in
-      m >= 1 && m <= 12 && d >= 1 &&
-      (let dmax =
-         match m with
-             2 ->
-               if y mod 4 = 0 && not (y mod 100 = 0) || y mod 400 = 0 then 29
-               else 28
-           | 1 | 3 | 5 | 7 | 8 | 10 | 12 -> 31
-           | _ -> 30
-       in
-       d <= dmax)
-    
-    (* Compare dates chronologically *)
-    let compare_date a b =
-      let c = compare a.year b.year in
-      if c <> 0 then c
-      else
-        let c = compare a.month b.month in
-        if c <> 0 then c
-        else compare a.day b.day
-    
-    (* Check that the end_date, when defined, is not earlier than the start_date *)
-    let validate_job x =
-      match x.end_date with
-          None -> true
-        | Some end_date ->
-            compare_date x.start_date end_date <= 0
+```ocaml
+open Resume_t
+
+let ascii_printable c =
+  let n = Char.code c in
+  n >= 32 && n <= 127
+
+(*
+  Check that string is not empty and contains only ASCII printable
+  characters (for the sake of the example; we use UTF-8 these days)
+*)
+let validate_some_text s =
+  s <> "" &&
+    try
+      String.iter (fun c -> if not (ascii_printable c) then raise Exit) s;
+      true
+    with Exit ->
+      false
+
+(*
+  Check that the combination of year, month and day exists in the 
+  Gregorian calendar.
+*)
+let validate_date x =
+  let y = x.year in
+  let m = x.month in
+  let d = x.day in
+  m >= 1 && m <= 12 && d >= 1 &&
+  (let dmax =
+     match m with
+         2 ->
+           if y mod 4 = 0 && not (y mod 100 = 0) || y mod 400 = 0 then 29
+           else 28
+       | 1 | 3 | 5 | 7 | 8 | 10 | 12 -> 31
+       | _ -> 30
+   in
+   d <= dmax)
+
+(* Compare dates chronologically *)
+let compare_date a b =
+  let c = compare a.year b.year in
+  if c <> 0 then c
+  else
+    let c = compare a.month b.month in
+    if c <> 0 then c
+    else compare a.day b.day
+
+(* Check that the end_date, when defined, is not earlier than the start_date *)
+let validate_job x =
+  match x.end_date with
+      None -> true
+    | Some end_date ->
+        compare_date x.start_date end_date <= 0
+```
 
 `resume.ml` uses the `validate_work_experience` function provided 
 by the `Resume_v` module:
 
-    let check_experience x =
-      let is_valid = Resume_v.validate_work_experience x in
-      Printf.printf "%s:\n%s\n"
-        (if is_valid then "VALID" else "INVALID")
-        (Yojson.Safe.prettify (Resume_j.string_of_work_experience x))
-    
-    let () =
-      (* one valid date *)
-      let valid = { Resume_t.year = 2000; month = 2; day = 29 } in
-      (* one invalid date *)
-      let invalid = { Resume_t.year = 1900; month = 0; day = 0 } in
-      (* two more valid dates, created with Resume_v.create_date *)
-      let date1 = { Resume_t.year = 2005; month = 8; day = 1 } in
-      let date2 = { Resume_t.year = 2006; month = 3; day = 22 } in
-    
-      let job = {
-        Resume_t.company = "Acme Corp.";
-        title = "Tester";
-        start_date = date1;
-        end_date = Some date2;
-      }
-      in
-      let valid_job = { job with Resume_t.start_date = valid } in
-      let invalid_job = { job with Resume_t.end_date = Some invalid } in
-      let valid_experience = [ job; valid_job ] in
-      let invalid_experience = [ job; invalid_job ] in
-      check_experience valid_experience;
-      check_experience invalid_experience
+```ocaml
+let check_experience x =
+  let is_valid = Resume_v.validate_work_experience x in
+  Printf.printf "%s:\n%s\n"
+    (if is_valid then "VALID" else "INVALID")
+    (Yojson.Safe.prettify (Resume_j.string_of_work_experience x))
+
+let () =
+  (* one valid date *)
+  let valid = { Resume_t.year = 2000; month = 2; day = 29 } in
+  (* one invalid date *)
+  let invalid = { Resume_t.year = 1900; month = 0; day = 0 } in
+  (* two more valid dates, created with Resume_v.create_date *)
+  let date1 = { Resume_t.year = 2005; month = 8; day = 1 } in
+  let date2 = { Resume_t.year = 2006; month = 3; day = 22 } in
+
+  let job = {
+    Resume_t.company = "Acme Corp.";
+    title = "Tester";
+    start_date = date1;
+    end_date = Some date2;
+  }
+  in
+  let valid_job = { job with Resume_t.start_date = valid } in
+  let invalid_job = { job with Resume_t.end_date = Some invalid } in
+  let valid_experience = [ job; valid_job ] in
+  let invalid_experience = [ job; invalid_job ] in
+  check_experience valid_experience;
+  check_experience invalid_experience
+```
 
 Output:
 
