@@ -536,7 +536,8 @@ Type definitions are placed in `resume.atd`:
         | Some end_date ->
             compare_date x.start_date end_date <= 0
 
-`resume.ml` uses the `validate_` functions provided by the `Resume_v` module:
+`resume.ml` uses the `validate_work_experience` function provided 
+by the `Resume_v` module:
 
     let check_experience x =
       let is_valid = Resume_v.validate_work_experience x in
@@ -601,6 +602,6 @@ Output:
     ]
 
 
-# Referring to type definitions from an other ATD file
+# Referring to type definitions from another ATD file
 
 # Integration with ocamldoc
