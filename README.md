@@ -639,6 +639,63 @@ Output:
     ]
 
 
-# Referring to type definitions from another ATD file
+# Modularity: referring to type definitions from another ATD file
+
+It is possible to define types that depend on types
+defined in other `.atd` files.
+The example below is self-explanatory.
+
+`part1.atd`:
+
+```ocaml
+type t = { x : int; y : int }
+```
+
+`part2.atd`:
+
+```ocaml
+type t1 <ocaml from="Part1" t="t"> = abstract
+    (*
+      Imports type t defined in file part1.atd.
+      The local name is t1. Because the local name (t1) is different from the
+      original name (t), we must specify the original name using t=.
+    *)
+
+type t2 = t1 list
+```
+
+`part3.atd`:
+
+```ocaml
+type t2 <ocaml from="Part2"> = abstract
+
+type t3 = {
+  name : string;
+  ?data : t2 option;
+}
+```
+
+`main.ml`:
+
+```ocaml
+let v = {
+  Part3_t.name = "foo";
+  data = Some [
+    { Part1_t.x = 1; y = 2 };
+    { Part1_t.x = 3; y = 4 };
+  ]
+}
+
+let () =
+  Ag_util.Json.to_channel Part3_j.write_t3 stdout v;
+  print_newline ()
+```
+
+Output:
+
+```
+{"name":"foo","data":[{"x":1,"y":2},{"x":3,"y":4}]}
+```
 
 # Integration with ocamldoc
+
