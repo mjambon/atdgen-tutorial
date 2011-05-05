@@ -114,6 +114,11 @@ $ ./hello
 {"year":1970,"month":1,"day":1}
 \end{verbatim}
 
+
+Source code for this section:
+\url{https://github.com/MyLifeLabs/atdgen-tutorial/tree/master/hello}
+
+
 \section{Inspecting and pretty-printing JSON}
 
 Input JSON data:
@@ -163,7 +168,8 @@ $ ydump -s stream.json
 [ 1, "a", {} ]
 \end{verbatim}
 
-From an OCaml program, pretty-printing can be done with \texttt{Yojson.Safe.prettify}
+From an OCaml program, pretty-printing can be done with
+\texttt{Yojson.Safe.prettify} 
 which has the following signature:
 
 ## ocaml () ##
@@ -195,6 +201,11 @@ $ ./prettify
   }
 ]
 \end{verbatim}
+
+Source code for this section:
+\url{https://github.com/MyLifeLabs/atdgen-tutorial/tree/master/pretty-json}
+
+
 
 \section{Inspecting biniou data}
 
@@ -337,6 +348,8 @@ $ bdump tree.dat
         <"Node": (<"Empty">, 5, <"Empty">)>)>)>
 \end{verbatim}
 
+Source code for this section:
+\url{https://github.com/MyLifeLabs/atdgen-tutorial/tree/master/inspect-biniou}
 
 \section{Optional fields and default values}
 
@@ -717,6 +730,10 @@ INVALID:
 ]
 \end{verbatim}
 
+Source code for this section:
+\url{https://github.com/MyLifeLabs/atdgen-tutorial/tree/master/validate}
+
+
 
 \section{Modularity: referring to type definitions from another ATD file}
 
@@ -775,6 +792,10 @@ Output:
 \begin{verbatim}
 {"name":"foo","data":[{"x":1,"y":2},{"x":3,"y":4}]}
 \end{verbatim}
+
+Source code for this section:
+\url{https://github.com/MyLifeLabs/atdgen-tutorial/tree/master/modularity}
+
 
 \section{Integration with ocamldoc}
 
