@@ -699,3 +699,52 @@ Output:
 
 # Integration with ocamldoc
 
+Ocamldoc is a tool that comes with the core OCaml distribution.
+It uses comments within `(**` and `*)` to produce hyperlinked documentation
+(HTML) of module signatures.
+
+Atdgen can produce `.mli` files with comments in the syntax supported by 
+ocamldoc but regular ATD comments within `(*` and `*)` are always discarded
+by atdgen. Instead, `<doc text="...">` must be used and placed after the 
+element they describe. The contents of the text field must be UTF8-encoded.
+
+```ocaml
+type point = {
+  x : float;
+  y : float;
+  ~z
+    <doc text="Optional depth, its default value is {{0.0}}.">
+    : float;
+}
+  <doc text="Point with optional 3rd dimension.
+
+OCaml example:
+{{{
+let p =
+  { x = 0.5; y = 1.0; z = 0. } 
+}}}
+">
+```
+
+is converted into the following `.mli` file with ocamldoc-compatible comments:
+
+```ocaml
+(**
+  Point with optional 3rd dimension.
+  
+  OCaml example:
+  
+{v
+let p =
+  \{ x = 0.5; y = 1.0; z = 0. \} 
+v}
+*)
+type point = {
+  x: float;
+  y: float;
+  z: float (** Optional depth, its default value is [0.0]. *)
+}
+```
+
+The only two forms of markup supported by `<doc text="...">` are `{{` ... `}}`
+for inline code and `{{{` ... `}}}` for a block of preformatted code.
