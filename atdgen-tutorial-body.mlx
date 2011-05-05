@@ -827,3 +827,48 @@ type point = {
 
 The only two forms of markup supported by \texttt{<doc text="...">} are \texttt{\{\{} ... \texttt{\}\}}
 for inline code and \texttt{\{\{\{} ... \texttt{\}\}\}} for a block of preformatted code.
+
+
+\section{Integration with build systems}
+
+\subsubsection{OMake}
+
+We provide an
+\href{https://github.com/MyLifeLabs/atdgen-omake}{atdgen
+  plugin} for \href{http://omake.metaprl.org}{OMake}.
+It allows to simplify the compilation rules to a minimum.
+
+The plugin consists of a self-documented file to copy into a project's
+root. The following is a sample \texttt{OMakefile} for a project using JSON and
+five source files (\texttt{foo.atd}, \texttt{foo.ml},
+\texttt{bar.atd}, \texttt{bar.ml} and \texttt{main.ml}):
+
+\begin{verbatim}
+include Atdgen
+  # requires file Atdgen.om
+
+OCAMLFILES = foo_t foo_j foo bar_t bar_j bar main
+  # correspond to the OCaml modules we want to build
+
+Atdgen(foo bar, -j-std)
+OCamlProgram(foobar, $(OCAMLFILES))
+
+.DEFAULT: foobar.opt
+
+.PHONY: clean
+clean:
+  rm -f *.cm[ioxa] *.cmx[as] *.[oa] *.opt *.run *~
+  rm -f $(ATDGEN_OUTFILES)
+\end{verbatim}
+
+Running \texttt{omake} builds the native code executable
+\texttt{foobar.opt}.
+
+\texttt{omake clean} removes all the products
+of compilation including the \texttt{.mli} and \texttt{.ml} produced
+by \texttt{atdgen}.
+
+
+\subsubsection{GNU Make}
+
+(coming soon)
