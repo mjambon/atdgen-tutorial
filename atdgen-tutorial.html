@@ -1,0 +1,604 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN"
+            "http://www.w3.org/TR/REC-html40/loose.dtd">
+<HTML>
+<HEAD>
+<TITLE>Atdgen tutorial
+</TITLE>
+
+<META http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<META name="GENERATOR" content="hevea 1.10">
+<STYLE type="text/css">
+.li-itemize{margin:1ex 0ex;}
+.li-enumerate{margin:1ex 0ex;}
+.dd-description{margin:0ex 0ex 1ex 4ex;}
+.dt-description{margin:0ex;}
+.toc{list-style:none;}
+.thefootnotes{text-align:left;margin:0ex;}
+.dt-thefootnotes{margin:0em;}
+.dd-thefootnotes{margin:0em 0em 0em 2em;}
+.footnoterule{margin:1em auto 1em 0px;width:50%;}
+.caption{padding-left:2ex; padding-right:2ex; margin-left:auto; margin-right:auto}
+.title{margin:2ex auto;text-align:center}
+.center{text-align:center;margin-left:auto;margin-right:auto;}
+.flushleft{text-align:left;margin-left:0ex;margin-right:auto;}
+.flushright{text-align:right;margin-left:auto;margin-right:0ex;}
+DIV TABLE{margin-left:inherit;margin-right:inherit;}
+PRE{text-align:left;margin-left:0ex;margin-right:auto;}
+BLOCKQUOTE{margin-left:4ex;margin-right:4ex;text-align:left;}
+TD P{margin:0px;}
+.boxed{border:1px solid black}
+.textboxed{border:1px solid black}
+.vbar{border:none;width:2px;background-color:black;}
+.hbar{border:none;height:2px;width:100%;background-color:black;}
+.hfill{border:none;height:1px;width:200%;background-color:black;}
+.vdisplay{border-collapse:separate;border-spacing:2px;width:auto; empty-cells:show; border:2px solid red;}
+.vdcell{white-space:nowrap;padding:0px;width:auto; border:2px solid green;}
+.display{border-collapse:separate;border-spacing:2px;width:auto; border:none;}
+.dcell{white-space:nowrap;padding:0px;width:auto; border:none;}
+.dcenter{margin:0ex auto;}
+.vdcenter{border:solid #FF8000 2px; margin:0ex auto;}
+.minipage{text-align:left; margin-left:0em; margin-right:auto;}
+.marginpar{border:solid thin black; width:20%; text-align:left;}
+.marginparleft{float:left; margin-left:0ex; margin-right:1ex;}
+.marginparright{float:right; margin-left:1ex; margin-right:0ex;}
+.theorem{text-align:left;margin:1ex auto 1ex 0ex;}
+.part{margin:2ex auto;text-align:center}
+</STYLE>
+</HEAD>
+<BODY >
+<!--HEVEA command line is: hevea -fix atdgen-tutorial -->
+<!--CUT DEF section 1 --><TABLE CLASS="title"><TR><TD><H1 CLASS="titlemain">Atdgen tutorial</H1><H3 CLASS="titlerest">Martin Jambon<BR>
+© 2011 MyLife</H3></TD></TR>
+</TABLE><!--TOC section Contents-->
+<H2 CLASS="section"><!--SEC ANCHOR -->Contents</H2><!--SEC END --><UL CLASS="toc"><LI CLASS="li-toc">
+<A HREF="#htoc1">1  What is atdgen?</A>
+</LI><LI CLASS="li-toc"><A HREF="#htoc2">2  Prerequisites</A>
+</LI><LI CLASS="li-toc"><A HREF="#htoc3">3  Getting started</A>
+</LI><LI CLASS="li-toc"><A HREF="#htoc4">4  Inspecting and pretty-printing JSON</A>
+</LI><LI CLASS="li-toc"><A HREF="#htoc5">5  Inspecting biniou data</A>
+</LI><LI CLASS="li-toc"><A HREF="#htoc6">6  Optional fields and default values</A>
+</LI><LI CLASS="li-toc"><A HREF="#htoc7">7  Smooth protocol upgrades</A>
+<UL CLASS="toc"><LI CLASS="li-toc">
+<A HREF="#htoc8">7.1  Adding or removing an optional record field</A>
+</LI><LI CLASS="li-toc"><A HREF="#htoc9">7.2  Adding a required record field</A>
+</LI><LI CLASS="li-toc"><A HREF="#htoc10">7.3  Removing a required record field</A>
+</LI><LI CLASS="li-toc"><A HREF="#htoc11">7.4  Adding a variant case</A>
+</LI><LI CLASS="li-toc"><A HREF="#htoc12">7.5  Removing a variant case</A>
+</LI><LI CLASS="li-toc"><A HREF="#htoc13">7.6  Avoiding future problems</A>
+</LI></UL>
+</LI><LI CLASS="li-toc"><A HREF="#htoc14">8  Data validation</A>
+</LI><LI CLASS="li-toc"><A HREF="#htoc15">9  Modularity: referring to type definitions from another ATD file</A>
+</LI><LI CLASS="li-toc"><A HREF="#htoc16">10  Integration with ocamldoc</A>
+</LI></UL><!--TOC section What is atdgen?-->
+<H2 CLASS="section"><!--SEC ANCHOR --><A NAME="htoc1">1</A>  What is atdgen?</H2><!--SEC END --><P>Atdgen is a tool that derives OCaml boilerplate code from type definitions.
+Currently it provides support for:</P><UL CLASS="itemize"><LI CLASS="li-itemize">
+<A HREF="http://json.org/">JSON</A> serialization and deserialization.
+</LI><LI CLASS="li-itemize"><A HREF="http://martin.jambon.free.fr/biniou-format.txt">Biniou</A>
+serialization and deserialization.
+Biniou is a binary format extensible like JSON but more compact
+and faster to process.
+</LI><LI CLASS="li-itemize">Convenience functions for creating and validating OCaml data.
+</LI></UL><!--TOC section Prerequisites-->
+<H2 CLASS="section"><!--SEC ANCHOR --><A NAME="htoc2">2</A>  Prerequisites</H2><!--SEC END --><P>This tutorial assumes that you are using atdgen version 1.2.0 or above.
+The following command tells you which version you are using:</P><PRE CLASS="verbatim">$ atdgen -version
+1.2.0+dev
+</PRE><P>At the time of writing, atdgen 1.2.0 has not
+been officially released but the development version is available from Github.
+You can fetch it using the following command:</P><PRE CLASS="verbatim">$ git clone git://github.com/MyLifeLabs/atdgen.git
+</PRE><P>A quick way of installing all the dependencies is via Godi.
+Run <TT>godi_console</TT> and install atdgen 1.1.1. You can then uninstall it
+but leave all its dependencies installed.</P><P>Now read the instructions in <TT>atdgen/INSTALL</TT> or just do:</P><PRE CLASS="verbatim">$ cd atdgen
+$ make
+$ make install
+</PRE><!--TOC section Getting started-->
+<H2 CLASS="section"><!--SEC ANCHOR --><A NAME="htoc3">3</A>  Getting started</H2><!--SEC END --><P>From now on we assume that atdgen 1.2.0 or above is installed properly.
+1.2.0+dev is fine.</P><PRE CLASS="verbatim">$ atdgen -version
+1.2.0+dev
+</PRE><P>Type definitions are placed in a <TT>.atd</TT> file (<TT>hello.atd</TT>):</P><PRE>
+<FONT COLOR="#007F00">type</FONT> date = {
+  year : int;
+  month : int;
+  day : int;
+}
+</PRE><P>Our handwritten OCaml program is <TT>hello.ml</TT>:</P><PRE>
+<FONT COLOR="#CC9900">open</FONT> <FONT COLOR="#0033CC">Hello_t</FONT>
+<FONT COLOR="#007F00">let</FONT> () =
+  <FONT COLOR="#007F00">let</FONT> date = { year = 1970; month = 1; day = 1 } <FONT COLOR="#007F00">in</FONT>
+  print_endline (<FONT COLOR="#0033CC">Hello_j</FONT>.string_of_date date)
+</PRE><P>We produce OCaml code from the type definitions using <TT>atdgen</TT>:</P><PRE CLASS="verbatim">$ atdgen -t hello.atd     # produces OCaml type definitions
+$ atdgen -j hello.atd     # produces OCaml code dealing with JSON
+</PRE><P>We now have <TT>_t</TT> and <TT>_j</TT> files produced by <TT>atdgen -t</TT> and <TT>atdgen -j</TT>
+respectively:</P><PRE CLASS="verbatim">$ ls
+hello.atd  hello.ml  hello_j.ml  hello_j.mli  hello_t.ml  hello_t.mli
+</PRE><P>We compile all <TT>.mli</TT> and <TT>.ml</TT> files:</P><PRE CLASS="verbatim">$ ocamlfind ocamlc -c hello_t.mli -package atdgen
+$ ocamlfind ocamlc -c hello_j.mli -package atdgen
+$ ocamlfind ocamlopt -c hello_t.ml -package atdgen
+$ ocamlfind ocamlopt -c hello_j.ml -package atdgen
+$ ocamlfind ocamlopt -c hello.ml -package atdgen
+$ ocamlfind ocamlopt -o hello hello_t.cmx hello_j.cmx hello.cmx \
+    -package atdgen -linkpkg
+</PRE><P>And finally we run our <TT>hello</TT> program:</P><PRE CLASS="verbatim">$ ./hello
+{"year":1970,"month":1,"day":1}
+</PRE><!--TOC section Inspecting and pretty-printing JSON-->
+<H2 CLASS="section"><!--SEC ANCHOR --><A NAME="htoc4">4</A>  Inspecting and pretty-printing JSON</H2><!--SEC END --><P>Input JSON data:</P><PRE CLASS="verbatim">$ cat single.json 
+[1234,"abcde",{"start_date":{"year":1970,"month":1,"day":1}, 
+"end_date":{"year":1980,"month":1,"day":1}}]
+</PRE><P>Pretty-printed JSON can be produced with the <TT>ydump</TT> command:</P><PRE CLASS="verbatim">$ ydump single.json 
+[
+  1234,
+  "abcde",
+  {
+    "start_date": { "year": 1970, "month": 1, "day": 1 },
+    "end_date": { "year": 1980, "month": 1, "day": 1 }
+  }
+]
+</PRE><P>Multiple JSON objects separated by whitespace, typically one JSON object
+per line, can also be pretty-printed with <TT>ydump</TT>. Input:</P><PRE CLASS="verbatim">$ cat stream.json 
+[1234,"abcde",{"start_date":{"year":1970,"month":1,"day":1}, 
+"end_date":{"year":1980,"month":1,"day":1}}]
+[1,"a",{}]
+</PRE><P>In this case the <TT>-s</TT> option is required:</P><PRE CLASS="verbatim">$ ydump -s stream.json 
+[
+  1234,
+  "abcde",
+  {
+    "start_date": { "year": 1970, "month": 1, "day": 1 },
+    "end_date": { "year": 1980, "month": 1, "day": 1 }
+  }
+]
+[ 1, "a", {} ]
+</PRE><P>From an OCaml program, pretty-printing can be done with <TT>Yojson.Safe.prettify</TT>
+which has the following signature:</P><PRE>
+<FONT COLOR="#007F00">val</FONT> prettify : string -&gt; string
+</PRE><P>We wrote a tiny program that simply calls the <TT>prettify</TT> function on 
+some predefined JSON data (file <TT>prettify.ml</TT>):</P><PRE>
+<FONT COLOR="#007F00">let</FONT> json =
+<FONT COLOR="#AA4444">"[1234,</FONT><FONT COLOR="#AA4444">\</FONT><FONT COLOR="#AA4444">"abcde</FONT><FONT COLOR="#AA4444">\</FONT><FONT COLOR="#AA4444">",{</FONT><FONT COLOR="#AA4444">\</FONT><FONT COLOR="#AA4444">"start_date</FONT><FONT COLOR="#AA4444">\</FONT><FONT COLOR="#AA4444">":{</FONT><FONT COLOR="#AA4444">\</FONT><FONT COLOR="#AA4444">"year</FONT><FONT COLOR="#AA4444">\</FONT><FONT COLOR="#AA4444">":1970,</FONT><FONT COLOR="#AA4444">\</FONT><FONT COLOR="#AA4444">"month</FONT><FONT COLOR="#AA4444">\</FONT><FONT COLOR="#AA4444">":1,</FONT><FONT COLOR="#AA4444">\</FONT><FONT COLOR="#AA4444">"day</FONT><FONT COLOR="#AA4444">\</FONT><FONT COLOR="#AA4444">":1}, </FONT>
+<FONT COLOR="#AA4444">\</FONT><FONT COLOR="#AA4444">"end_date</FONT><FONT COLOR="#AA4444">\</FONT><FONT COLOR="#AA4444">":{</FONT><FONT COLOR="#AA4444">\</FONT><FONT COLOR="#AA4444">"year</FONT><FONT COLOR="#AA4444">\</FONT><FONT COLOR="#AA4444">":1980,</FONT><FONT COLOR="#AA4444">\</FONT><FONT COLOR="#AA4444">"month</FONT><FONT COLOR="#AA4444">\</FONT><FONT COLOR="#AA4444">":1,</FONT><FONT COLOR="#AA4444">\</FONT><FONT COLOR="#AA4444">"day</FONT><FONT COLOR="#AA4444">\</FONT><FONT COLOR="#AA4444">":1}}]"</FONT>
+
+<FONT COLOR="#007F00">let</FONT> () = print_endline (<FONT COLOR="#0033CC">Yojson</FONT>.<FONT COLOR="#0033CC">Safe</FONT>.prettify json)
+</PRE><P>We now compile and run prettify.ml:</P><PRE CLASS="verbatim">$ ocamlfind ocamlopt -o prettify prettify.ml -package atdgen -linkpkg
+$ ./prettify
+[
+  1234,
+  "abcde",
+  {
+    "start_date": { "year": 1970, "month": 1, "day": 1 },
+    "end_date": { "year": 1980, "month": 1, "day": 1 }
+  }
+]
+</PRE><!--TOC section Inspecting biniou data-->
+<H2 CLASS="section"><!--SEC ANCHOR --><A NAME="htoc5">5</A>  Inspecting biniou data</H2><!--SEC END --><P>Biniou is a binary format that can be displayed as text using a generic
+command called <TT>bdump</TT>. The only practical difficulty is to recover
+the original field names and variant names which are stored as 31-bit hashes.
+Unhashing them is done by consulting a dictionary (list of words)
+maintained by the user.</P><P>Let&#X2019;s first produce a sample data file <TT>tree.dat</TT> containing the
+biniou representation of a binary tree. In the same program
+we will also demonstrate how to render biniou data into text from an
+OCaml program.</P><P>Here is the ATD file defining our tree type (file <TT>tree.atd</TT>):</P><PRE>
+<FONT COLOR="#007F00">type</FONT> tree =
+    [ <FONT COLOR="#0033CC">Empty</FONT>
+    <FONT COLOR="#77AAAA">|</FONT> <FONT COLOR="#0033CC">Node</FONT> <FONT COLOR="#007F00">of</FONT> (tree * int * tree) ]
+</PRE><P>This is our OCaml program (file <TT>tree.ml</TT>):</P><PRE>
+<FONT COLOR="#CC9900">open</FONT> <FONT COLOR="#0033CC">Printf</FONT>
+
+<FONT COLOR="#990000">(* sample value *)</FONT>
+<FONT COLOR="#007F00">let</FONT> tree : <FONT COLOR="#0033CC">Tree_t</FONT>.tree =
+  <FONT COLOR="#0033CC">&#X2018;</FONT><FONT COLOR="#0033CC">Node</FONT> (
+    <FONT COLOR="#0033CC">&#X2018;</FONT><FONT COLOR="#0033CC">Node</FONT> (<FONT COLOR="#0033CC">&#X2018;</FONT><FONT COLOR="#0033CC">Empty</FONT>, 1, <FONT COLOR="#0033CC">&#X2018;</FONT><FONT COLOR="#0033CC">Empty</FONT>),
+    2,
+    <FONT COLOR="#0033CC">&#X2018;</FONT><FONT COLOR="#0033CC">Node</FONT> (
+      <FONT COLOR="#0033CC">&#X2018;</FONT><FONT COLOR="#0033CC">Node</FONT> (<FONT COLOR="#0033CC">&#X2018;</FONT><FONT COLOR="#0033CC">Empty</FONT>, 3, <FONT COLOR="#0033CC">&#X2018;</FONT><FONT COLOR="#0033CC">Empty</FONT>),
+      4,
+      <FONT COLOR="#0033CC">&#X2018;</FONT><FONT COLOR="#0033CC">Node</FONT> (<FONT COLOR="#0033CC">&#X2018;</FONT><FONT COLOR="#0033CC">Empty</FONT>, 5, <FONT COLOR="#0033CC">&#X2018;</FONT><FONT COLOR="#0033CC">Empty</FONT>)
+    )
+  )
+
+<FONT COLOR="#007F00">let</FONT> () =
+  <FONT COLOR="#990000">(* write sample value to file *)</FONT>
+  <FONT COLOR="#007F00">let</FONT> fname = <FONT COLOR="#AA4444">"tree.dat"</FONT> <FONT COLOR="#007F00">in</FONT>
+  <FONT COLOR="#0033CC">Ag_util</FONT>.<FONT COLOR="#0033CC">Biniou</FONT>.to_file <FONT COLOR="#0033CC">Tree_b</FONT>.write_tree fname tree;
+
+  <FONT COLOR="#990000">(* write sample value to string *)</FONT>
+  <FONT COLOR="#007F00">let</FONT> s = <FONT COLOR="#0033CC">Tree_b</FONT>.string_of_tree tree <FONT COLOR="#007F00">in</FONT>
+  printf <FONT COLOR="#AA4444">"raw value (saved as %s):</FONT><FONT COLOR="#AA4444">\</FONT><FONT COLOR="#AA4444">n%S</FONT><FONT COLOR="#AA4444">\</FONT><FONT COLOR="#AA4444">n"</FONT> fname s;
+  printf <FONT COLOR="#AA4444">"length: %i</FONT><FONT COLOR="#AA4444">\</FONT><FONT COLOR="#AA4444">n"</FONT> (<FONT COLOR="#0033CC">String</FONT>.length s);
+
+  printf <FONT COLOR="#AA4444">"pretty-printed value (without dictionary):</FONT><FONT COLOR="#AA4444">\</FONT><FONT COLOR="#AA4444">n"</FONT>;
+  print_endline (<FONT COLOR="#0033CC">Bi_io</FONT>.view s);
+
+  printf <FONT COLOR="#AA4444">"pretty-printed value (with dictionary):</FONT><FONT COLOR="#AA4444">\</FONT><FONT COLOR="#AA4444">n"</FONT>;
+  <FONT COLOR="#007F00">let</FONT> unhash = <FONT COLOR="#0033CC">Bi_io</FONT>.make_unhash [<FONT COLOR="#AA4444">"Empty"</FONT>; <FONT COLOR="#AA4444">"Node"</FONT>; <FONT COLOR="#AA4444">"foo"</FONT>; <FONT COLOR="#AA4444">"bar"</FONT> ] <FONT COLOR="#007F00">in</FONT>
+  print_endline (<FONT COLOR="#0033CC">Bi_io</FONT>.view ~unhash s)
+</PRE><P>Compilation:</P><PRE CLASS="verbatim">$ atdgen -t tree.atd
+$ atdgen -b tree.atd
+$ ocamlfind ocamlopt -o tree \
+    tree_t.mli tree_t.ml tree_b.mli tree_b.ml tree.ml \
+    -package atdgen -linkpkg
+</PRE><P>Running the program:</P><PRE CLASS="verbatim">$ ./tree
+raw value (saved as tree.dat):
+"\023\179\2276\"\020\003\023\179\2276\"\020\003\023\003\007\170m\017\002\023\003\007\170m\017\004\023\179\2276\"\020\003\023\179\2276\"\020\003\023\003\007\170m\017\006\023\003\007\170m\017\b\023\179\2276\"\020\003\023\003\007\170m\017\n\023\003\007\170m"
+length: 75
+pretty-printed value (without dictionary):
+&lt;#33e33622:
+   (&lt;#33e33622: (&lt;#0307aa6d&gt;, 1, &lt;#0307aa6d&gt;)&gt;,
+    2,
+    &lt;#33e33622:
+       (&lt;#33e33622: (&lt;#0307aa6d&gt;, 3, &lt;#0307aa6d&gt;)&gt;,
+        4,
+        &lt;#33e33622: (&lt;#0307aa6d&gt;, 5, &lt;#0307aa6d&gt;)&gt;)&gt;)&gt;
+pretty-printed value (with dictionary):
+&lt;"Node":
+   (&lt;"Node": (&lt;"Empty"&gt;, 1, &lt;"Empty"&gt;)&gt;,
+    2,
+    &lt;"Node":
+       (&lt;"Node": (&lt;"Empty"&gt;, 3, &lt;"Empty"&gt;)&gt;,
+        4,
+        &lt;"Node": (&lt;"Empty"&gt;, 5, &lt;"Empty"&gt;)&gt;)&gt;)&gt;
+</PRE><P>Now let&#X2019;s see how to pretty-print any biniou data from the command line.
+Our sample data are now in file <TT>tree.dat</TT>:</P><PRE CLASS="verbatim">$ ls -l tree.dat
+-rw-r--r-- 1 martin martin 75 Apr 17 01:46 tree.dat
+</PRE><P>We use the command <TT>bdump</TT> to render our sample biniou data as text:</P><PRE CLASS="verbatim">$ bdump tree.dat
+&lt;#33e33622:
+   (&lt;#33e33622: (&lt;#0307aa6d&gt;, 1, &lt;#0307aa6d&gt;)&gt;,
+    2,
+    &lt;#33e33622:
+       (&lt;#33e33622: (&lt;#0307aa6d&gt;, 3, &lt;#0307aa6d&gt;)&gt;,
+        4,
+        &lt;#33e33622: (&lt;#0307aa6d&gt;, 5, &lt;#0307aa6d&gt;)&gt;)&gt;)&gt;
+</PRE><P>We got hashes for the variant names <TT>Empty</TT> and <TT>Node</TT>.
+Let&#X2019;s add them to the dictionary:</P><PRE CLASS="verbatim">$ bdump -w Empty,Node tree.dat
+&lt;"Node":
+   (&lt;"Node": (&lt;"Empty"&gt;, 1, &lt;"Empty"&gt;)&gt;,
+    2,
+    &lt;"Node":
+       (&lt;"Node": (&lt;"Empty"&gt;, 3, &lt;"Empty"&gt;)&gt;,
+        4,
+        &lt;"Node": (&lt;"Empty"&gt;, 5, &lt;"Empty"&gt;)&gt;)&gt;)&gt;
+</PRE><P><TT>bdump</TT> remembers the dictionary so we don&#X2019;t have to pass the 
+<TT>-w</TT> option anymore (for this user on this machine).
+The following now works:</P><PRE CLASS="verbatim">$ bdump tree.dat
+&lt;"Node":
+   (&lt;"Node": (&lt;"Empty"&gt;, 1, &lt;"Empty"&gt;)&gt;,
+    2,
+    &lt;"Node":
+       (&lt;"Node": (&lt;"Empty"&gt;, 3, &lt;"Empty"&gt;)&gt;,
+        4,
+        &lt;"Node": (&lt;"Empty"&gt;, 5, &lt;"Empty"&gt;)&gt;)&gt;)&gt;
+</PRE><!--TOC section Optional fields and default values-->
+<H2 CLASS="section"><!--SEC ANCHOR --><A NAME="htoc6">6</A>  Optional fields and default values</H2><!--SEC END --><P>Although OCaml records do not support optional fields, both the JSON
+and biniou formats make it possible to omit certain fields on a
+per-record basis.</P><P>For example the JSON record <TT>{ "x": 0, "y": 0 }</TT> can be more
+compactly written as <TT>{}</TT> if the reader knows the default values for
+the missing fields <TT>x</TT> and <TT>y</TT>. Here is the corresponding type
+definition:</P><PRE>
+<FONT COLOR="#007F00">type</FONT> vector_v1 = { ~x: int; ~y: int }
+</PRE><P><TT> x</TT> means that field <TT>x</TT> supports a default value. Since we do not
+specify the default value ourselves, the built-in default is used,
+which is 0.</P><P>If we want the default to be something else than 0, we just have to
+specify it as follows:</P><PRE>
+<FONT COLOR="#007F00">type</FONT> vector_v2 = {
+  ~x &lt;ocaml default=<FONT COLOR="#AA4444">"1"</FONT>&gt;: int; <FONT COLOR="#990000">(* default x is 1 *)</FONT>
+  ~y: int;                     <FONT COLOR="#990000">(* default y is 0 *)</FONT>
+}
+</PRE><P>It is also possible to specify optional fields without a default
+value. For example, let&#X2019;s add an optional <TT>z</TT> field:</P><PRE>
+<FONT COLOR="#007F00">type</FONT> vector_v3 = {
+  ~x: int;
+  ~y: int;
+  ?z: int option;
+}
+</PRE><P>The following two examples are valid JSON representations of data of
+type <TT>vector_v3</TT>:</P><PRE CLASS="verbatim">{ "x": 2, "y": 2, "z": 3 }  // OCaml: { x = 2; y = 2; z = Some 3 }
+</PRE><PRE CLASS="verbatim">{ "x": 2, "y": 2 }          // OCaml: { x = 2; y = 2; z = None }
+</PRE><P>For a variety of good reasons JSON&#X2019;s <TT>null</TT> value may not be used to
+indicate that a field is undefined.
+Therefore the following JSON data cannot be read as a record of type
+<TT>vector_v3</TT>:</P><PRE CLASS="verbatim">{ "x": 2, "y": 2, "z": null }  // invalid value for field z
+</PRE><P>Note also the difference between <TT>?z: int option</TT> and <TT> z: int
+option</TT>:</P><PRE>
+<FONT COLOR="#007F00">type</FONT> vector_v4 = {
+  ~x: int;
+  ~y: int;
+  ~z: int option;  <FONT COLOR="#990000">(* no unwrapping of the JSON field value! *)</FONT>
+}
+</PRE><P>Here are valid values of type <TT>vector_v4</TT>, showing that it is usually
+not what is intended:</P><PRE CLASS="verbatim">{ "x": 2, "y": 2, "z": [ "Some", 3 ] }
+</PRE><PRE CLASS="verbatim">{ "x": 2, "y": 2, "z": "None" }
+</PRE><PRE CLASS="verbatim">{ "x": 2, "y": 2 }
+</PRE><!--TOC section Smooth protocol upgrades-->
+<H2 CLASS="section"><!--SEC ANCHOR --><A NAME="htoc7">7</A>  Smooth protocol upgrades</H2><!--SEC END --><P>Problem: you have a production system that uses a specific
+JSON or biniou format. It may be data files or a client-server
+pair. You now want to add a field to a record type or to add a case to
+a variant type.</P><P>Both JSON and biniou allow extra record fields. If the
+consumer does not know how to deal with the extra field, the default
+behavior is to happily ignore it.</P><!--TOC subsection Adding or removing an optional record field-->
+<H3 CLASS="subsection"><!--SEC ANCHOR --><A NAME="htoc8">7.1</A>  Adding or removing an optional record field</H3><!--SEC END --><PRE>
+<FONT COLOR="#007F00">type</FONT> t = {
+  x: int;
+  y: int;
+}
+</PRE><P>Same <TT>.atd</TT> source file, edited:</P><PRE>
+<FONT COLOR="#007F00">type</FONT> t = {
+  x: int;
+  y: int;
+  ~z: int; <FONT COLOR="#990000">(* new field *)</FONT>
+}
+</PRE><UL CLASS="itemize"><LI CLASS="li-itemize">
+Upgrade producers and consumers in any order
+</LI><LI CLASS="li-itemize">Converting old data is not required nor useful
+</LI></UL><!--TOC subsection Adding a required record field-->
+<H3 CLASS="subsection"><!--SEC ANCHOR --><A NAME="htoc9">7.2</A>  Adding a required record field</H3><!--SEC END --><PRE>
+<FONT COLOR="#007F00">type</FONT> t = {
+  x: int;
+  y: int;
+}
+</PRE><P>Same <TT>.atd</TT> source file, edited:</P><PRE>
+<FONT COLOR="#007F00">type</FONT> t = {
+  x: int;
+  y: int;
+  z: int; <FONT COLOR="#990000">(* new field *)</FONT>
+}
+</PRE><UL CLASS="itemize"><LI CLASS="li-itemize">
+Upgrade all producers before the consumers
+</LI><LI CLASS="li-itemize">Converting old data requires special-purpose hand-written code
+</LI></UL><!--TOC subsection Removing a required record field-->
+<H3 CLASS="subsection"><!--SEC ANCHOR --><A NAME="htoc10">7.3</A>  Removing a required record field</H3><!--SEC END --><UL CLASS="itemize"><LI CLASS="li-itemize">
+Upgrade all consumers before the producers
+</LI><LI CLASS="li-itemize">Converting old data is not required but may save some storage space
+(just read and re-write each record using the new type)
+</LI></UL><!--TOC subsection Adding a variant case-->
+<H3 CLASS="subsection"><!--SEC ANCHOR --><A NAME="htoc11">7.4</A>  Adding a variant case</H3><!--SEC END --><PRE>
+<FONT COLOR="#007F00">type</FONT> t = [ <FONT COLOR="#0033CC">A</FONT> <FONT COLOR="#77AAAA">|</FONT> <FONT COLOR="#0033CC">B</FONT> ]
+</PRE><P>Same <TT>.atd</TT> source file, edited:</P><PRE>
+<FONT COLOR="#007F00">type</FONT> t = [ <FONT COLOR="#0033CC">A</FONT> <FONT COLOR="#77AAAA">|</FONT> <FONT COLOR="#0033CC">B</FONT> <FONT COLOR="#77AAAA">|</FONT> <FONT COLOR="#0033CC">C</FONT> ]
+</PRE><UL CLASS="itemize"><LI CLASS="li-itemize">
+Upgrade all consumers before the producers
+</LI><LI CLASS="li-itemize">Converting old data is not required and would have no effect
+</LI></UL><!--TOC subsection Removing a variant case-->
+<H3 CLASS="subsection"><!--SEC ANCHOR --><A NAME="htoc12">7.5</A>  Removing a variant case</H3><!--SEC END --><UL CLASS="itemize"><LI CLASS="li-itemize">
+Upgrade all producers before the consumers
+</LI><LI CLASS="li-itemize">Converting old data requires special-purpose hand-written code
+</LI></UL><!--TOC subsection Avoiding future problems-->
+<H3 CLASS="subsection"><!--SEC ANCHOR --><A NAME="htoc13">7.6</A>  Avoiding future problems</H3><!--SEC END --><UL CLASS="itemize"><LI CLASS="li-itemize">
+In doubt, use records rather than tuples because it makes it
+possible to add or remove any field or to reorder them.
+</LI><LI CLASS="li-itemize">Do not hesitate to create variant types with only one case or
+records with only one field if you think they might be extended
+later.
+</LI></UL><!--TOC section Data validation-->
+<H2 CLASS="section"><!--SEC ANCHOR --><A NAME="htoc14">8</A>  Data validation</H2><!--SEC END --><P>Atdgen can be used to produce data validators for all types defined 
+in an ATD file,
+based on user-given validators specified only for certain types.
+A simple example is:</P><PRE>
+<FONT COLOR="#007F00">type</FONT> t = string &lt;ocaml validator=<FONT COLOR="#AA4444">"fun s -&gt; String.length s &gt;= 8"</FONT>&gt; option
+</PRE><P><TT>atdgen -v</TT> will produce something equivalent to the following implementation:</P><PRE>
+<FONT COLOR="#007F00">let</FONT> validate_t x =
+  <FONT COLOR="#77AAAA">match</FONT> x <FONT COLOR="#77AAAA">with</FONT>
+      <FONT COLOR="#0033CC">None</FONT> -&gt; true
+    <FONT COLOR="#77AAAA">|</FONT> <FONT COLOR="#0033CC">Some</FONT> x -&gt; (<FONT COLOR="#007F00">fun</FONT> s -&gt; <FONT COLOR="#0033CC">String</FONT>.length s &gt;= 8) x
+</PRE><P>Let&#X2019;s now consider a more realistic example with complex validators defined
+in a separate .ml file. We created the following 3 source files:</P><UL CLASS="itemize"><LI CLASS="li-itemize">
+<TT>resume.atd</TT>: contains the type definitions with annotations
+</LI><LI CLASS="li-itemize"><TT>resume_util.ml</TT>: contains our handwritten validators
+</LI><LI CLASS="li-itemize"><TT>resume.ml</TT>: is our main program that creates data and calls the validators
+</LI></UL><P>In terms of OCaml modules we have:</P><UL CLASS="itemize"><LI CLASS="li-itemize">
+<TT>Resume_t</TT>: produced by <TT>atdgen -t resume.atd</TT>, 
+provides OCaml type definitions
+</LI><LI CLASS="li-itemize"><TT>Resume_util</TT>: depends on <TT>Resume_t</TT>, provides validators mentioned
+in <TT>resume.atd</TT>
+</LI><LI CLASS="li-itemize"><TT>Resume_v</TT>: produced by <TT>atdgen -v resume.atd</TT>, depends on <TT>Resume_util</TT>,
+provides a validator for each type
+</LI><LI CLASS="li-itemize"><TT>Resume</TT>: depends on <TT>Resume_v</TT>, uses the validators
+</LI></UL><P>Type definitions are placed in <TT>resume.atd</TT>:</P><PRE>
+<FONT COLOR="#007F00">type</FONT> text = string &lt;ocaml validator=<FONT COLOR="#AA4444">"Resume_util.validate_some_text"</FONT>&gt;
+
+<FONT COLOR="#007F00">type</FONT> date = {
+  year : int;
+  month : int;
+  day : int;
+} &lt;ocaml validator=<FONT COLOR="#AA4444">"Resume_util.validate_date"</FONT>&gt;
+
+<FONT COLOR="#007F00">type</FONT> job = {
+  company : text;
+  title : text;
+  start_date : date;
+  ?end_date : date option;
+} &lt;ocaml validator=<FONT COLOR="#AA4444">"Resume_util.validate_job"</FONT>&gt;
+
+<FONT COLOR="#007F00">type</FONT> work_experience = job list
+</PRE><P><TT>resume_util.ml</TT> contains our handwritten validators:</P><PRE>
+<FONT COLOR="#CC9900">open</FONT> <FONT COLOR="#0033CC">Resume_t</FONT>
+
+<FONT COLOR="#007F00">let</FONT> ascii_printable c =
+  <FONT COLOR="#007F00">let</FONT> n = <FONT COLOR="#0033CC">Char</FONT>.code c <FONT COLOR="#007F00">in</FONT>
+  n &gt;= 32 &amp;&amp; n &lt;= 127
+
+<FONT COLOR="#990000">(*</FONT>
+<FONT COLOR="#990000">  Check that string is not empty and contains only ASCII printable</FONT>
+<FONT COLOR="#990000">  characters (for the sake of the example; we use UTF-8 these days)</FONT>
+<FONT COLOR="#990000">*)</FONT>
+<FONT COLOR="#007F00">let</FONT> validate_some_text s =
+  s &lt;&gt; <FONT COLOR="#AA4444">""</FONT> &amp;&amp;
+    <FONT COLOR="#77AAAA">try</FONT>
+      <FONT COLOR="#0033CC">String</FONT>.iter (<FONT COLOR="#007F00">fun</FONT> c -&gt; <FONT COLOR="#77AAAA">if</FONT> not (ascii_printable c) <FONT COLOR="#77AAAA">then</FONT> raise <FONT COLOR="#0033CC">Exit</FONT>) s;
+      true
+    <FONT COLOR="#77AAAA">with</FONT> <FONT COLOR="#0033CC">Exit</FONT> -&gt;
+      false
+
+<FONT COLOR="#990000">(*</FONT>
+<FONT COLOR="#990000">  Check that the combination of year, month and day exists in the </FONT>
+<FONT COLOR="#990000">  Gregorian calendar.</FONT>
+<FONT COLOR="#990000">*)</FONT>
+<FONT COLOR="#007F00">let</FONT> validate_date x =
+  <FONT COLOR="#007F00">let</FONT> y = x.year <FONT COLOR="#007F00">in</FONT>
+  <FONT COLOR="#007F00">let</FONT> m = x.month <FONT COLOR="#007F00">in</FONT>
+  <FONT COLOR="#007F00">let</FONT> d = x.day <FONT COLOR="#007F00">in</FONT>
+  m &gt;= 1 &amp;&amp; m &lt;= 12 &amp;&amp; d &gt;= 1 &amp;&amp;
+  (<FONT COLOR="#007F00">let</FONT> dmax =
+     <FONT COLOR="#77AAAA">match</FONT> m <FONT COLOR="#77AAAA">with</FONT>
+         2 -&gt;
+           <FONT COLOR="#77AAAA">if</FONT> y <FONT COLOR="#7F7F7F">mod</FONT> 4 = 0 &amp;&amp; not (y <FONT COLOR="#7F7F7F">mod</FONT> 100 = 0) || y <FONT COLOR="#7F7F7F">mod</FONT> 400 = 0 <FONT COLOR="#77AAAA">then</FONT> 29
+           <FONT COLOR="#77AAAA">else</FONT> 28
+       <FONT COLOR="#77AAAA">|</FONT> 1 <FONT COLOR="#77AAAA">|</FONT> 3 <FONT COLOR="#77AAAA">|</FONT> 5 <FONT COLOR="#77AAAA">|</FONT> 7 <FONT COLOR="#77AAAA">|</FONT> 8 <FONT COLOR="#77AAAA">|</FONT> 10 <FONT COLOR="#77AAAA">|</FONT> 12 -&gt; 31
+       <FONT COLOR="#77AAAA">|</FONT> _ -&gt; 30
+   <FONT COLOR="#007F00">in</FONT>
+   d &lt;= dmax)
+
+<FONT COLOR="#990000">(* Compare dates chronologically *)</FONT>
+<FONT COLOR="#007F00">let</FONT> compare_date a b =
+  <FONT COLOR="#007F00">let</FONT> c = compare a.year b.year <FONT COLOR="#007F00">in</FONT>
+  <FONT COLOR="#77AAAA">if</FONT> c &lt;&gt; 0 <FONT COLOR="#77AAAA">then</FONT> c
+  <FONT COLOR="#77AAAA">else</FONT>
+    <FONT COLOR="#007F00">let</FONT> c = compare a.month b.month <FONT COLOR="#007F00">in</FONT>
+    <FONT COLOR="#77AAAA">if</FONT> c &lt;&gt; 0 <FONT COLOR="#77AAAA">then</FONT> c
+    <FONT COLOR="#77AAAA">else</FONT> compare a.day b.day
+
+<FONT COLOR="#990000">(* Check that the end_date, when defined, is not earlier than the start_date *)</FONT>
+<FONT COLOR="#007F00">let</FONT> validate_job x =
+  <FONT COLOR="#77AAAA">match</FONT> x.end_date <FONT COLOR="#77AAAA">with</FONT>
+      <FONT COLOR="#0033CC">None</FONT> -&gt; true
+    <FONT COLOR="#77AAAA">|</FONT> <FONT COLOR="#0033CC">Some</FONT> end_date -&gt;
+        compare_date x.start_date end_date &lt;= 0
+</PRE><P><TT>resume.ml</TT> uses the <TT>validate_work_experience</TT> function provided 
+by the <TT>Resume_v</TT> module:</P><PRE>
+<FONT COLOR="#007F00">let</FONT> check_experience x =
+  <FONT COLOR="#007F00">let</FONT> is_valid = <FONT COLOR="#0033CC">Resume_v</FONT>.validate_work_experience x <FONT COLOR="#007F00">in</FONT>
+  <FONT COLOR="#0033CC">Printf</FONT>.printf <FONT COLOR="#AA4444">"%s:</FONT><FONT COLOR="#AA4444">\</FONT><FONT COLOR="#AA4444">n%s</FONT><FONT COLOR="#AA4444">\</FONT><FONT COLOR="#AA4444">n"</FONT>
+    (<FONT COLOR="#77AAAA">if</FONT> is_valid <FONT COLOR="#77AAAA">then</FONT> <FONT COLOR="#AA4444">"VALID"</FONT> <FONT COLOR="#77AAAA">else</FONT> <FONT COLOR="#AA4444">"INVALID"</FONT>)
+    (<FONT COLOR="#0033CC">Yojson</FONT>.<FONT COLOR="#0033CC">Safe</FONT>.prettify (<FONT COLOR="#0033CC">Resume_j</FONT>.string_of_work_experience x))
+
+<FONT COLOR="#007F00">let</FONT> () =
+  <FONT COLOR="#990000">(* one valid date *)</FONT>
+  <FONT COLOR="#007F00">let</FONT> valid = { <FONT COLOR="#0033CC">Resume_t</FONT>.year = 2000; month = 2; day = 29 } <FONT COLOR="#007F00">in</FONT>
+  <FONT COLOR="#990000">(* one invalid date *)</FONT>
+  <FONT COLOR="#007F00">let</FONT> invalid = { <FONT COLOR="#0033CC">Resume_t</FONT>.year = 1900; month = 0; day = 0 } <FONT COLOR="#007F00">in</FONT>
+  <FONT COLOR="#990000">(* two more valid dates, created with Resume_v.create_date *)</FONT>
+  <FONT COLOR="#007F00">let</FONT> date1 = { <FONT COLOR="#0033CC">Resume_t</FONT>.year = 2005; month = 8; day = 1 } <FONT COLOR="#007F00">in</FONT>
+  <FONT COLOR="#007F00">let</FONT> date2 = { <FONT COLOR="#0033CC">Resume_t</FONT>.year = 2006; month = 3; day = 22 } <FONT COLOR="#007F00">in</FONT>
+
+  <FONT COLOR="#007F00">let</FONT> job = {
+    <FONT COLOR="#0033CC">Resume_t</FONT>.company = <FONT COLOR="#AA4444">"Acme Corp."</FONT>;
+    title = <FONT COLOR="#AA4444">"Tester"</FONT>;
+    start_date = date1;
+    end_date = <FONT COLOR="#0033CC">Some</FONT> date2;
+  }
+  <FONT COLOR="#007F00">in</FONT>
+  <FONT COLOR="#007F00">let</FONT> valid_job = { job <FONT COLOR="#77AAAA">with</FONT> <FONT COLOR="#0033CC">Resume_t</FONT>.start_date = valid } <FONT COLOR="#007F00">in</FONT>
+  <FONT COLOR="#007F00">let</FONT> invalid_job = { job <FONT COLOR="#77AAAA">with</FONT> <FONT COLOR="#0033CC">Resume_t</FONT>.end_date = <FONT COLOR="#0033CC">Some</FONT> invalid } <FONT COLOR="#007F00">in</FONT>
+  <FONT COLOR="#007F00">let</FONT> valid_experience = [ job; valid_job ] <FONT COLOR="#007F00">in</FONT>
+  <FONT COLOR="#007F00">let</FONT> invalid_experience = [ job; invalid_job ] <FONT COLOR="#007F00">in</FONT>
+  check_experience valid_experience;
+  check_experience invalid_experience
+</PRE><P>Output:</P><PRE CLASS="verbatim">VALID:
+[
+  {
+    "company": "Acme Corp.",
+    "title": "Tester",
+    "start_date": { "year": 2005, "month": 8, "day": 1 },
+    "end_date": { "year": 2006, "month": 3, "day": 22 }
+  },
+  {
+    "company": "Acme Corp.",
+    "title": "Tester",
+    "start_date": { "year": 2000, "month": 2, "day": 29 },
+    "end_date": { "year": 2006, "month": 3, "day": 22 }
+  }
+]
+INVALID:
+[
+  {
+    "company": "Acme Corp.",
+    "title": "Tester",
+    "start_date": { "year": 2005, "month": 8, "day": 1 },
+    "end_date": { "year": 2006, "month": 3, "day": 22 }
+  },
+  {
+    "company": "Acme Corp.",
+    "title": "Tester",
+    "start_date": { "year": 2005, "month": 8, "day": 1 },
+    "end_date": { "year": 1900, "month": 0, "day": 0 }
+  }
+]
+</PRE><!--TOC section Modularity: referring to type definitions from another ATD file-->
+<H2 CLASS="section"><!--SEC ANCHOR --><A NAME="htoc15">9</A>  Modularity: referring to type definitions from another ATD file</H2><!--SEC END --><P>It is possible to define types that depend on types
+defined in other <TT>.atd</TT> files.
+The example below is self-explanatory.</P><P><TT>part1.atd</TT>:</P><PRE>
+<FONT COLOR="#007F00">type</FONT> t = { x : int; y : int }
+</PRE><P><TT>part2.atd</TT>:</P><PRE>
+<FONT COLOR="#007F00">type</FONT> t1 &lt;ocaml from=<FONT COLOR="#AA4444">"Part1"</FONT> t=<FONT COLOR="#AA4444">"t"</FONT>&gt; = abstract
+    <FONT COLOR="#990000">(*</FONT>
+<FONT COLOR="#990000">      Imports type t defined in file part1.atd.</FONT>
+<FONT COLOR="#990000">      The local name is t1. Because the local name (t1) is different from the</FONT>
+<FONT COLOR="#990000">      original name (t), we must specify the original name using t=.</FONT>
+<FONT COLOR="#990000">    *)</FONT>
+
+<FONT COLOR="#007F00">type</FONT> t2 = t1 list
+</PRE><P><TT>part3.atd</TT>:</P><PRE>
+<FONT COLOR="#007F00">type</FONT> t2 &lt;ocaml from=<FONT COLOR="#AA4444">"Part2"</FONT>&gt; = abstract
+
+<FONT COLOR="#007F00">type</FONT> t3 = {
+  name : string;
+  ?data : t2 option;
+}
+</PRE><P><TT>main.ml</TT>:</P><PRE>
+<FONT COLOR="#007F00">let</FONT> v = {
+  <FONT COLOR="#0033CC">Part3_t</FONT>.name = <FONT COLOR="#AA4444">"foo"</FONT>;
+  data = <FONT COLOR="#0033CC">Some</FONT> [
+    { <FONT COLOR="#0033CC">Part1_t</FONT>.x = 1; y = 2 };
+    { <FONT COLOR="#0033CC">Part1_t</FONT>.x = 3; y = 4 };
+  ]
+}
+
+<FONT COLOR="#007F00">let</FONT> () =
+  <FONT COLOR="#0033CC">Ag_util</FONT>.<FONT COLOR="#0033CC">Json</FONT>.to_channel <FONT COLOR="#0033CC">Part3_j</FONT>.write_t3 stdout v;
+  print_newline ()
+</PRE><P>Output:</P><PRE CLASS="verbatim">{"name":"foo","data":[{"x":1,"y":2},{"x":3,"y":4}]}
+</PRE><!--TOC section Integration with ocamldoc-->
+<H2 CLASS="section"><!--SEC ANCHOR --><A NAME="htoc16">10</A>  Integration with ocamldoc</H2><!--SEC END --><P>Ocamldoc is a tool that comes with the core OCaml distribution.
+It uses comments within <TT>(**</TT> and <TT>*)</TT> to produce hyperlinked documentation
+(HTML) of module signatures.</P><P>Atdgen can produce <TT>.mli</TT> files with comments in the syntax supported by 
+ocamldoc but regular ATD comments within <TT>(*</TT> and <TT>*)</TT> are always discarded
+by atdgen. Instead, <TT>&lt;doc text="..."&gt;</TT> must be used and placed after the 
+element they describe. The contents of the text field must be UTF8-encoded.</P><PRE>
+<FONT COLOR="#007F00">type</FONT> point = {
+  x : float;
+  y : float;
+  ~z
+    &lt;doc text=<FONT COLOR="#AA4444">"Optional depth, its default value is {{0.0}}."</FONT>&gt;
+    : float;
+}
+  &lt;doc text=<FONT COLOR="#AA4444">"Point with optional 3rd dimension.</FONT>
+
+<FONT COLOR="#AA4444">OCaml example:</FONT>
+<FONT COLOR="#AA4444">{{{</FONT>
+<FONT COLOR="#AA4444">let p =</FONT>
+<FONT COLOR="#AA4444">  { x = 0.5; y = 1.0; z = 0. } </FONT>
+<FONT COLOR="#AA4444">}}}</FONT>
+<FONT COLOR="#AA4444">"</FONT>&gt;
+</PRE><P>is converted into the following <TT>.mli</TT> file with ocamldoc-compatible comments:</P><PRE>
+<FONT COLOR="#990000">(**</FONT>
+<FONT COLOR="#990000">  Point with optional 3rd dimension.</FONT>
+<FONT COLOR="#990000">  </FONT>
+<FONT COLOR="#990000">  OCaml example:</FONT>
+<FONT COLOR="#990000">  </FONT>
+<FONT COLOR="#990000">{v</FONT>
+<FONT COLOR="#990000">let p =</FONT>
+<FONT COLOR="#990000">  </FONT><FONT COLOR="#990000">\</FONT><FONT COLOR="#990000">{ x = 0.5; y = 1.0; z = 0. </FONT><FONT COLOR="#990000">\</FONT><FONT COLOR="#990000">} </FONT>
+<FONT COLOR="#990000">v}</FONT>
+<FONT COLOR="#990000">*)</FONT>
+<FONT COLOR="#007F00">type</FONT> point = {
+  x: float;
+  y: float;
+  z: float <FONT COLOR="#990000">(** Optional depth, its default value is [0.0]. *)</FONT>
+}
+</PRE><P>The only two forms of markup supported by <TT>&lt;doc text="..."&gt;</TT> are <TT>{{</TT> ... <TT>}}</TT>
+for inline code and <TT>{{{</TT> ... <TT>}}}</TT> for a block of preformatted code.
+
+</P><!--CUT END -->
+<!--HTMLFOOT-->
+<!--ENDHTML-->
+<!--FOOTER-->
+<HR SIZE=2><BLOCKQUOTE CLASS="quote"><EM>This document was translated from L<sup>A</sup>T<sub>E</sub>X by
+</EM><A HREF="http://hevea.inria.fr/index.html"><EM>H</EM><EM><FONT SIZE=2><sup>E</sup></FONT></EM><EM>V</EM><EM><FONT SIZE=2><sup>E</sup></FONT></EM><EM>A</EM></A><EM>.</EM></BLOCKQUOTE></BODY>
+</HTML>
