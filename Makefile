@@ -25,11 +25,18 @@ atdgen-tutorial-body.tex: macros.ml atdgen-tutorial-body.mlx
 atdgen-tutorial.txt: $(TEXFILES)
 	rm -f *.aux
 	hevea -fix -text atdgen-tutorial
-	iconv -f ISO_8859-1 -t UTF-8 < atdgen-tutorial.txt > ../README
+	mv atdgen-tutorial.txt atdgen-tutorial.txt.orig
+	iconv -f ISO_8859-1 -t UTF-8 < atdgen-tutorial.txt.orig \
+		> atdgen-tutorial.txt
 
 atdgen-tutorial.html: $(TEXFILES)
 	rm -f *.aux
 	hevea -fix atdgen-tutorial
+	sed -i '/<\/STYLE>/ r hevea-insert1.html' atdgen-tutorial.html
+	sed -i '/<BODY *>/ r hevea-insert2.html' atdgen-tutorial.html
+	sed -i 's/<\/BLOCKQUOTE><\/BODY>/<\/BLOCKQUOTE><!--END-->\n<\/BODY>/' \
+		atdgen-tutorial.html
+	sed -i '/<!--END-->/ r hevea-insert3.html' atdgen-tutorial.html
 
 atdgen-tutorial.pdf: $(TEXFILES)
 	pdflatex atdgen-tutorial
