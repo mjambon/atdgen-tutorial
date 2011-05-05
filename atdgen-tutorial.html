@@ -283,7 +283,7 @@ compactly written as <TT>{}</TT> if the reader knows the default values for
 the missing fields <TT>x</TT> and <TT>y</TT>. Here is the corresponding type
 definition:</P><PRE>
 <FONT COLOR="#007F00">type</FONT> vector_v1 = { ~x: int; ~y: int }
-</PRE><P><TT> x</TT> means that field <TT>x</TT> supports a default value. Since we do not
+</PRE><P><TT>~x</TT> means that field <TT>x</TT> supports a default value. Since we do not
 specify the default value ourselves, the built-in default is used,
 which is 0.</P><P>If we want the default to be something else than 0, we just have to
 specify it as follows:</P><PRE>
@@ -305,7 +305,7 @@ type <TT>vector_v3</TT>:</P><PRE CLASS="verbatim">{ "x": 2, "y": 2, "z": 3 }  //
 indicate that a field is undefined.
 Therefore the following JSON data cannot be read as a record of type
 <TT>vector_v3</TT>:</P><PRE CLASS="verbatim">{ "x": 2, "y": 2, "z": null }  // invalid value for field z
-</PRE><P>Note also the difference between <TT>?z: int option</TT> and <TT> z: int
+</PRE><P>Note also the difference between <TT>?z: int option</TT> and <TT>~z: int
 option</TT>:</P><PRE>
 <FONT COLOR="#007F00">type</FONT> vector_v4 = {
   ~x: int;

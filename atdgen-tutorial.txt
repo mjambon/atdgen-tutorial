@@ -1,4 +1,4 @@
-   
+ 
                                      
                             Atdgen tutorial
                             ***************
@@ -350,7 +350,7 @@ fields x and y. Here is the corresponding type definition:
   type vector_v1 = { ~x: int; ~y: int }
 >>
   
-   x means that field x supports a default value. Since we do not
+  ~x means that field x supports a default value. Since we do not
 specify the default value ourselves, the built-in default is used, which
 is 0.
   If we want the default to be something else than 0, we just have to
@@ -386,7 +386,7 @@ cannot be read as a record of type vector_v3:
 <<{ "x": 2, "y": 2, "z": null }  // invalid value for field z
 >>
   
-  Note also the difference between ?z: int option and  z: int option:
+  Note also the difference between ?z: int option and ~z: int option:
 <<
   type vector_v4 = {
     ~x: int;

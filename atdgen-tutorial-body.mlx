@@ -353,7 +353,7 @@ definition:
 type vector_v1 = { ~x: int; ~y: int }
 ## () ##
 
-\texttt{~x} means that field \texttt{x} supports a default value. Since we do not
+\texttt{\~{}x} means that field \texttt{x} supports a default value. Since we do not
 specify the default value ourselves, the built-in default is used,
 which is 0.
 
@@ -399,7 +399,7 @@ Therefore the following JSON data cannot be read as a record of type
 \end{verbatim}
 
 
-Note also the difference between \texttt{?z: int option} and \texttt{~z: int
+Note also the difference between \texttt{?z: int option} and \texttt{\~{}z: int
 option}:
 
 ## atd () ##
