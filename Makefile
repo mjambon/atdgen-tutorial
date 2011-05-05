@@ -1,4 +1,4 @@
-.PHONY: all demo pdf txt html clean
+.PHONY: all demo pdf txt html install clean
 all: demo pdf txt html
 
 demo:
@@ -42,6 +42,13 @@ atdgen-tutorial.pdf: $(TEXFILES)
 	pdflatex atdgen-tutorial
 	pdflatex atdgen-tutorial
 	pdflatex atdgen-tutorial
+
+install:
+	cp atdgen-tutorial.html atdgen-tutorial.txt atdgen-tutorial.pdf \
+		../mylifelabs.github.com/
+	cd ../mylifelabs.github.com/; \
+	git add atdgen-tutorial.html atdgen-tutorial.txt atdgen-tutorial.pdf; \
+	git commit -m "Update"; git push
 
 clean:
 	rm -f *~
