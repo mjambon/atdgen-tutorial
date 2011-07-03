@@ -7,7 +7,7 @@
 #use "macros.ml";;
 ##
 
-\section{What is atdgen?}
+\section{What is Atdgen?}
 
 Atdgen is a tool that derives OCaml boilerplate code from type definitions.
 Currently it provides support for:
@@ -21,7 +21,7 @@ Currently it provides support for:
 \item Convenience functions for creating and validating OCaml data.
 \end{itemize}
 
-\section{What are the advantages of atdgen?}
+\section{What are the advantages of Atdgen?}
 
 Atdgen has a number of advantages over its predecessor json-static
 which was based on Camlp4:
@@ -45,42 +45,27 @@ which was based on Camlp4:
 
 \section{Prerequisites}
 
-This tutorial assumes that you are using atdgen version 1.2.0 or above.
+This tutorial assumes that you are using Atdgen version 1.2.0 or above.
 The following command tells you which version you are using:
 
 \begin{verbatim}
 $ atdgen -version
-1.2.0+dev
+1.2.0
 \end{verbatim}
 
-At the time of writing, atdgen 1.2.0 has not
-been officially released but the development version is available from Github.
-You can fetch it using the following command:
+A quick way of installing Atdgen and all its dependencies is via Godi.
 
-\begin{verbatim}
-$ git clone git://github.com/MyLifeLabs/atdgen.git
-\end{verbatim}
+Alternatively, read and follow the instructions in the
+\texttt{INSTALL} file of the source package of Atdgen.
 
-A quick way of installing all the dependencies is via Godi.
-Run \texttt{godi\_console} and install atdgen 1.1.1. You can then uninstall it
-but leave all its dependencies installed.
-
-Now read the instructions in \texttt{atdgen/INSTALL} or just do:
-
-\begin{verbatim}
-$ cd atdgen
-$ make
-$ make install
-\end{verbatim}
 
 \section{Getting started}
 
-From now on we assume that atdgen 1.2.0 or above is installed properly.
-1.2.0+dev is fine.
+From now on we assume that Atdgen 1.2.0 or above is installed properly.
 
 \begin{verbatim}
 $ atdgen -version
-1.2.0+dev
+1.2.0
 \end{verbatim}
 
 Type definitions are placed in a \texttt{.atd} file (\texttt{hello.atd}):
@@ -827,7 +812,7 @@ It uses comments within \texttt{(**} and \texttt{*)} to produce hyperlinked docu
 
 Atdgen can produce \texttt{.mli} files with comments in the syntax supported by 
 ocamldoc but regular ATD comments within \texttt{(*} and \texttt{*)} are always discarded
-by atdgen. Instead, \texttt{<doc text="...">} must be used and placed after the 
+by Atdgen. Instead, \texttt{<doc text="...">} must be used and placed after the 
 element they describe. The contents of the text field must be UTF8-encoded.
 
 ## atd () ##
@@ -877,7 +862,7 @@ for inline code and \texttt{\{\{\{} ... \texttt{\}\}\}} for a block of preformat
 \subsubsection{OMake}
 
 We provide an
-\href{https://github.com/MyLifeLabs/atdgen-omake}{atdgen
+\href{https://github.com/MyLifeLabs/atdgen-omake}{Atdgen
   plugin} for \href{http://omake.metaprl.org}{OMake}.
 It allows to simplify the compilation rules to a minimum.
 
