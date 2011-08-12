@@ -1,0 +1,11 @@
+type config = {
+  title : string;
+  ?description : string option;
+  ~timeout <ocaml default="10"> : int;
+  ~credentials : param list;
+}
+
+type param = {
+  name : string;
+  key : string;
+}
