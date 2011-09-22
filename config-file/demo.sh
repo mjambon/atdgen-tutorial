@@ -30,5 +30,8 @@ ocamlfind ocamlopt -o config \
 # Fail to validate an invalid config file
 ./config -validate bad-config1.json || :
 
+# Fail to validate another invalid config file (using custom validators)
+./config -validate bad-config3.json || :
+
 # Validate, inject missing defaults and pretty-print
 ./config -validate sample-config.json

@@ -834,12 +834,64 @@ Here is an example of how to use atdgen to manage config files.
   fields, including those whose value is the default.
 \end{itemize}
 
+The example uses the following type definitions:
+## print_atd (file_contents "config-file/config.atd") ##
+
+Our program will perform the following actions:
+\begin{verbatim}
+$ ./config -template
+{
+  "title": "",
+  "timeout": 10,
+  "credentials": [ { "name": "foo", "key": "0123456789abcdef" } ]
+}
+
+$ ./config -format
+type config = {
+  title : string;
+  ?description : string option;
+  ~timeout <ocaml default="10"> : int;
+  ~credentials : param list
+    <ocaml validator="fun l ->
+                        l <> [] || failwith \"missing credentials\"">;
+}
+
+type param = {
+  name : string
+    <ocaml validator="fun s -> s <> \"\"">;
+  key : string
+    <ocaml validator="fun s -> String.length s = 16">;
+}
+
+$ cat sample-config.json
+{
+  "title": "Example",
+  "credentials": [
+    {
+      "name": "joeuser",
+      "key": "db7c0877bdef3016"
+    },
+    {
+      "name": "tester",
+      "key": "09871ff387ac2b10"
+    }
+  ]
+}
+
+$ ./config -validate sample-config.json
+{
+  "title": "Example",
+  "timeout": 10,
+  "credentials": [
+    { "name": "joeuser", "key": "db7c0877bdef3016" },
+    { "name": "tester", "key": "09871ff387ac2b10" }
+  ]
+}
+\end{verbatim}
+
 This is our \texttt{demo.sh} script that builds and runs our example
 program called \texttt{config}:
 \verbatiminput{config-file/demo.sh}
-
-The example uses the following type definitions:
-## print_atd (file_contents "config-file/config.atd") ##
 
 This is the hand-written OCaml program. It can be used as a start
 point for a real-world program using a JSON config file:
