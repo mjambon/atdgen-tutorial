@@ -13,6 +13,8 @@ txt: atdgen-tutorial.txt
 html: atdgen-tutorial.html
 
 TEXFILES = atdgen-tutorial.tex atdgen-tutorial-body.tex
+TUTSRC = $(TEXFILES) \
+         config-file/demo.sh config-file/config.atd config-file/config.ml
 
 atdgen-tutorial.tex: atdgen-tutorial.mlx
 	OCAMLPATH=../..:$$OCAMLPATH \
@@ -22,23 +24,26 @@ atdgen-tutorial-body.tex: macros.ml atdgen-tutorial-body.mlx
 	OCAMLPATH=../..:$$OCAMLPATH \
 		camlmix atdgen-tutorial-body.mlx -o atdgen-tutorial-body.tex
 
-atdgen-tutorial.txt: $(TEXFILES)
+atdgen-tutorial.txt: $(TUTSRC)
 	rm -f *.aux
 	hevea -fix -text atdgen-tutorial
 	mv atdgen-tutorial.txt atdgen-tutorial.txt.orig
 	iconv -f ISO_8859-1 -t UTF-8 < atdgen-tutorial.txt.orig \
 		> atdgen-tutorial.txt
 
-atdgen-tutorial.html: $(TEXFILES)
+atdgen-tutorial.html: $(TUTSRC) \
+                      hevea-insert1.html hevea-insert2.html hevea-insert3.html
 	rm -f *.aux
 	hevea -fix atdgen-tutorial
 	sed -i '/<\/STYLE>/ r hevea-insert1.html' atdgen-tutorial.html
 	sed -i '/<BODY *>/ r hevea-insert2.html' atdgen-tutorial.html
 	sed -i 's/<\/BLOCKQUOTE><\/BODY>/<\/BLOCKQUOTE><!--END-->\n<\/BODY>/' \
 		atdgen-tutorial.html
+	sed -i -e 's:^<HR SIZE\=2>.*::' atdgen-tutorial.html
+	sed -i -e 's:^.*<!--END-->:<!--END-->:' atdgen-tutorial.html
 	sed -i '/<!--END-->/ r hevea-insert3.html' atdgen-tutorial.html
 
-atdgen-tutorial.pdf: $(TEXFILES)
+atdgen-tutorial.pdf: $(TUTSRC)
 	pdflatex atdgen-tutorial
 	pdflatex atdgen-tutorial
 	pdflatex atdgen-tutorial

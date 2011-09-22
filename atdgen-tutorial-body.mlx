@@ -358,7 +358,7 @@ $ bdump tree.dat
 Source code for this section:
 \url{https://github.com/MyLifeLabs/atdgen-tutorial/tree/master/inspect-biniou}
 
-\section{Optional fields and default values}
+\section{\label{defaults}Optional fields and default values}
 
 Although OCaml records do not support optional fields, both the JSON
 and biniou formats make it possible to omit certain fields on a
@@ -373,7 +373,8 @@ definition:
 type vector_v1 = { ~x: int; ~y: int }
 ## () ##
 
-\texttt{\~{}x} means that field \texttt{x} supports a default value. Since we do not
+\texttt{\~{}x} means that field \texttt{x} supports a default
+value. Since we do not 
 specify the default value ourselves, the built-in default is used,
 which is 0.
 
@@ -560,7 +561,8 @@ A simple example is:
 type t = string <ocaml validator="fun s -> String.length s >= 8"> option
 ## () ##
 
-\texttt{atdgen -v} will produce something equivalent to the following implementation:
+\texttt{atdgen -v} will produce something equivalent to the following
+implementation: 
 
 ## ocaml () ##
 let validate_t x =
@@ -575,7 +577,8 @@ in a separate .ml file. We created the following 3 source files:
 \begin{itemize}
 \item \texttt{resume.atd}: contains the type definitions with annotations
 \item \texttt{resume\_util.ml}: contains our handwritten validators
-\item \texttt{resume.ml}: is our main program that creates data and calls the validators
+\item \texttt{resume.ml}: is our main program that creates data and
+  calls the validators 
 \end{itemize}
 
 In terms of OCaml modules we have:
@@ -583,10 +586,10 @@ In terms of OCaml modules we have:
 \begin{itemize}
 \item \texttt{Resume\_t}: produced by \texttt{atdgen -t resume.atd}, 
               provides OCaml type definitions
-\item \texttt{Resume\_util}: depends on \texttt{Resume\_t}, provides validators mentioned
-                 in \texttt{resume.atd}
-\item \texttt{Resume\_v}: produced by \texttt{atdgen -v resume.atd}, depends on \texttt{Resume\_util},
-              provides a validator for each type
+\item \texttt{Resume\_util}: depends on \texttt{Resume\_t}, provides
+  validators mentioned in \texttt{resume.atd}
+\item \texttt{Resume\_v}: produced by \texttt{atdgen -v resume.atd},
+  depends on \texttt{Resume\_util}, provides a validator for each type
 \item \texttt{Resume}: depends on \texttt{Resume\_v}, uses the validators
 \end{itemize}
 
@@ -668,8 +671,8 @@ let validate_job x =
         compare_date x.start_date end_date <= 0
 ## () ##
 
-\texttt{resume.ml} uses the \texttt{validate\_work\_experience} function provided 
-by the \texttt{Resume\_v} module:
+\texttt{resume.ml} uses the \texttt{validate\_work\_experience}
+function provided by the \texttt{Resume\_v} module:
 
 ## ocaml () ##
 let check_experience x =
@@ -804,14 +807,58 @@ Source code for this section:
 \url{https://github.com/MyLifeLabs/atdgen-tutorial/tree/master/modularity}
 
 
+\section{Managing JSON configuration files}
+
+JSON makes a good format for configuration files because it is
+human-readable, easy to modify programmatically and widespread.
+Here is an example of how to use atdgen to manage config files.
+
+\begin{itemize}
+\item \textbf{Specifying defaults} is done in the .atd file. See
+  section \ref{defaults} for details on how to do that.
+\item \textbf{Auto-generating a template config file with default values}:
+  a sample value in the OCaml world needs to be created but only
+  fields without default need to be specified.
+\item \textbf{Describing the format} is achieved by embedding the .atd
+  type definitions in the OCaml program and printing it out on request.
+\item \textbf{Loading a config file and reporting illegal fields} is
+  achieved using the JSON deserializers produced by \texttt{atdgen
+    -j}. Option \texttt{-j-strict-fields} ensures the misspelled field
+  names are not ignored but reported as errors.
+\item \textbf{Reindenting a config file} is achieved by the
+  pretty-printing function \texttt{Yojson.Safe.prettify} that takes a
+  JSON string and returns an equivalent JSON string.
+\item \textbf{Showing implicit (default) settings} is achieved by
+  passing the \texttt{-j-defaults} option to \texttt{atdgen}.
+  The OCaml config data is then serialized into JSON containing all
+  fields, including those whose value is the default.
+\end{itemize}
+
+This is our \texttt{demo.sh} script that builds and runs our example
+program called \texttt{config}:
+\verbatiminput{config-file/demo.sh}
+
+The example uses the following type definitions:
+## print_atd (file_contents "config-file/config.atd") ##
+
+This is the hand-written OCaml program. It can be used as a start
+point for a real-world program using a JSON config file:
+## print_ocaml (file_contents "config-file/config.ml") ##
+
+The full source code for this section with examples can be inspected
+and downloaded here:
+\url{https://github.com/MyLifeLabs/atdgen-tutorial/tree/master/config-file}
+
+
 \section{Integration with ocamldoc}
 
 Ocamldoc is a tool that comes with the core OCaml distribution.
-It uses comments within \texttt{(**} and \texttt{*)} to produce hyperlinked documentation
-(HTML) of module signatures.
+It uses comments within \texttt{(**} and \texttt{*)} to produce
+hyperlinked documentation (HTML) of module signatures.
 
 Atdgen can produce \texttt{.mli} files with comments in the syntax supported by 
-ocamldoc but regular ATD comments within \texttt{(*} and \texttt{*)} are always discarded
+ocamldoc but regular ATD comments within \texttt{(*} and \texttt{*)}
+are always discarded 
 by Atdgen. Instead, \texttt{<doc text="...">} must be used and placed after the 
 element they describe. The contents of the text field must be UTF8-encoded.
 
@@ -833,7 +880,8 @@ let p =
 ">
 ## () ##
 
-is converted into the following \texttt{.mli} file with ocamldoc-compatible comments:
+is converted into the following \texttt{.mli} file with
+ocamldoc-compatible comments: 
 
 ## ocaml () ##
 (**
@@ -853,8 +901,10 @@ type point = {
 }
 ## () ##
 
-The only two forms of markup supported by \texttt{<doc text="...">} are \texttt{\{\{} ... \texttt{\}\}}
-for inline code and \texttt{\{\{\{} ... \texttt{\}\}\}} for a block of preformatted code.
+The only two forms of markup supported by \texttt{<doc text="...">}
+are \texttt{\{\{} ... \texttt{\}\}} 
+for inline code and \texttt{\{\{\{} ... \texttt{\}\}\}} for a block of
+preformatted code. 
 
 
 \section{Integration with build systems}
