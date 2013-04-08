@@ -8,32 +8,41 @@ let ascii_printable c =
   Check that string is not empty and contains only ASCII printable
   characters (for the sake of the example; we use UTF-8 these days)
 *)
-let validate_some_text s =
-  s <> "" &&
+let validate_some_text path s =
+  let success =
+    s <> "" &&
     try
       String.iter (fun c -> if not (ascii_printable c) then raise Exit) s;
       true
     with Exit ->
       false
+  in
+  if success then None
+  else
+    Some (Ag_util.Validation.error path)
 
 (*
-  Check that the combination of year, month and day exists in the 
+  Check that the combination of year, month and day exists in the
   Gregorian calendar.
 *)
-let validate_date x =
+let validate_date path x =
   let y = x.year in
   let m = x.month in
   let d = x.day in
-  m >= 1 && m <= 12 && d >= 1 &&
-  (let dmax =
-     match m with
-         2 ->
-           if y mod 4 = 0 && not (y mod 100 = 0) || y mod 400 = 0 then 29
-           else 28
-       | 1 | 3 | 5 | 7 | 8 | 10 | 12 -> 31
-       | _ -> 30
-   in
-   d <= dmax)
+  let success =
+    m >= 1 && m <= 12 && d >= 1 &&
+    (let dmax =
+       match m with
+           2 ->
+             if y mod 4 = 0 && not (y mod 100 = 0) || y mod 400 = 0 then 29
+             else 28
+         | 1 | 3 | 5 | 7 | 8 | 10 | 12 -> 31
+         | _ -> 30
+     in
+     d <= dmax)
+  in
+  if success then None
+  else Some (Ag_util.Validation.error path)
 
 (* Compare dates chronologically *)
 let compare_date a b =
@@ -45,8 +54,11 @@ let compare_date a b =
     else compare a.day b.day
 
 (* Check that the end_date, when defined, is not earlier than the start_date *)
-let validate_job x =
+let validate_job path x =
   match x.end_date with
-      None -> true
+      None -> None
     | Some end_date ->
-        compare_date x.start_date end_date <= 0
+        if compare_date x.start_date end_date <= 0 then
+          None
+        else
+          Some (Ag_util.Validation.error path)
