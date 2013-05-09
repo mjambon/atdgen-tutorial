@@ -28,3 +28,36 @@ type status_t = Unix.process_status =
   | WSIGNALED of int
   | WSTOPPED of int
 ```
+
+Serializing abstract types that come with their own `to_string and `of_string`
+------------------------------------------------------------------------------
+
+```ocaml
+(*
+  atdgen -t ex.atd
+  atdgen -j -j-std ex.atd
+  ocamlfind opt -c -package atdgen ex_t.mli ex_t.ml ex_j.mli ex_j.ml
+*)
+type calendar =
+    string wrap <ocaml module="Calendar"
+                       (* t="t" is implied *)
+                       wrap="Calendar.of_string"
+                       unwrap="Calendar.to_string">
+
+type has_calendar_t = {
+  c : calendar;
+}
+```
+
+produces the following OCaml type definitions:
+
+```ocaml
+type calendar = Calendar.t
+type has_calendar_t = { c: calendar }
+```
+
+When converting to JSON, a value of type `calendar` is converted
+(unwrapped) into an OCaml string using the supplied function
+`Calendar.to_string`. Conversely, when reading from JSON, an OCaml
+string is parsed (wrapped) into a `calendar` using the supplied function
+`Calendar.of_string`.
