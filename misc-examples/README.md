@@ -29,8 +29,8 @@ type status_t = Unix.process_status =
   | WSTOPPED of int
 ```
 
-Serializing abstract types that come with their own `to_string and `of_string`
-------------------------------------------------------------------------------
+Serializing abstract types that come with their own `to_string` and `of_string`
+-------------------------------------------------------------------------------
 
 ```ocaml
 (*
